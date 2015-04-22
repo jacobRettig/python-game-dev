@@ -112,8 +112,14 @@ class Entity(Base):
         return self._animation_
     def _set_animation(self, v):
         self._animation_ = v
-    
+        
+    def destroy(self):
+        self.owner.entityList.remove(self)
+        
+    #TODO
     def update(self):
+        return False
+    def draw(self):
         pass
     
     

@@ -14,14 +14,15 @@ rand = Random()
 
 
 class Map(Base):
-    TileCode = {"EMPTY":0,
-        "WALL":1,
-        "NODE":2,
-        "PLAYER":3}
+    TileCode = ["EMPTY",
+        "WALL",
+        "NODE",
+        "PLAYER"]
     TileText = {" ":"EMPTY",
         "#":"WALL",
         "N":"NODE",
         "P":"PLAYER"}
+    TileSolids = ["WALL"]
     
     def __init__(self, base, cellWidth, cellHeight, textWidth,textHeight):
         self._base_, self._baseW_, self._baseH_ = base, textWidth, textHeight
@@ -44,17 +45,16 @@ class Map(Base):
         self.entityList = []
         self.openCells = []
         self.player = player
-        
-        self.data = [[Map.TileCode["EMPTY"]] * self.baseW] * self.baseH
+        self.data = [[Map.TileCode.index("EMPTY")] * self.baseW] * self.baseH
         self.metaData = [{} * self.baseW] * self.baseH
         self.nodes = []
         
         for i in range(self.baseW * self.baseH):
             x, y = i // self.baseW, i % self.baseW
             
-            self.data[x][y] = Map.TileCode[Map.TileText[i]]
+            self.data[x][y] = Map.TileCode.index(Map.TileText[i])
             
-            if Map.TileText[i] != "WALL" and Map.TileText[i] != "PLAYER":
+            if not (Map.TileText[i] in Map.TileSolids) and Map.TileText[i] != "PLAYER":
                 self.openCells.append((x, y))
             if Map.TileText[i] == "NODE":
                 self.initNode(x, y)
@@ -70,24 +70,27 @@ class Map(Base):
         self.nodes.append((x, y))
         
     def isOpenLinePerpendicular(self, x1, y1, x2, y2):
+        obstacles = [Map.TileCode.index("NODE")]
+        obstacles += [Map.TileCode.index(data) for data in Map.TileSolids]
+        
         if x2 - x1 == 0:
             if y2 - y1 < 0:
-                for y in range(y1 - y2 - 1):
-                    if self.data[x1][y2 + y + 1] == self.TileCode["WALL"]:
+                for tile in self.data[x1][y1:y2 + 1]:
+                    if tile in obstacles: 
                         return False
             else:
-                for y in range(y2 - y1 - 1):
-                    if self.data[x1][y1 + y + 1] == self.TileCode["WALL"]:
+                for tile in self.data[x1][y2:y1 + 1]:
+                    if tile in obstacles: 
                         return False
         elif y2 - y1 == 0:
             if x2 - x1 < 0:
-                for x in range(x1 - x2 - 1):
-                    if self.data[x2 + x + 1][y1] == self.TileCode["WALL"]:
+                for tiles in self.data[x1:x2 + 1]:
+                    if tiles[y1] in obstacles:
                         return False
             else:
-                for x in range(x2 - x1 - 1):
-                    if self.data[x1 + x + 1][y1] == self.TileCode["WALL"]:
-                        return False    
+                for tiles in self.data[x2:x1 + 1]:
+                    if tiles[y1] in obstacles:
+                        return False
         else:
             raise TypeError("Not perpendicular line")
         return True
@@ -96,7 +99,22 @@ class Map(Base):
         w, h = self.cellWidth - entity.width, self.cellHeight - entity.height
         pos, x, y = self.openCells[rand.randrange(0, len(self.openCells))], rand.random() * w, rand.random() * h
         entity.x, entity.y = pos[0]*self.cellWidth + x, pos[1]*self.cellHeight + y
+        
         self.entityList.append(entity)
+        
+    def getSolidRange(self, x, y, w, h):
+        solids = []
+        if w < 0:
+            x -= w
+            w = -w
+        if h < 0:
+            y -= h
+            h = -h
+            
+        for i in range(w):
+            solids += [tile for tile in self.data[x + i][y:y+h] if Map.TileCode[tile] in Map.TileSolids]
+        return solids
+        
         
         
     

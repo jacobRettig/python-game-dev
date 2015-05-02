@@ -19,17 +19,23 @@ class World(Base):
         self.time = 0
         self.entityList = []
         
-    def _get_gameMap(self):
+    @property
+    def gameMap(self):
         return self._gameMap_
-    def _set_gameMap(self, v):
+    @gameMap.setter
+    def gameMap(self, v):
         raise AttributeError
-    def _get_screen(self):
+    @property
+    def screen(self):
         return self._screen_
-    def _set_screen(self, v):
+    @screen.setter
+    def screen(self, v):
         raise AttributeError
-    def _get_background(self):
+    @property
+    def background(self):
         return self._background_
-    def _set_background(self, v):
+    @background.setter
+    def background(self, v):
         raise AttributeError
     
     def draw(self):

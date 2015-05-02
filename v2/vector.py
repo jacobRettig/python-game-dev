@@ -6,10 +6,8 @@ Created on Apr 20, 2015
 from collections import Iterable
 import math, functools
 
-from base import Base
 
-
-class Vector(Base, Iterable):
+class Vector(Iterable):
     def __init__(self, *args):
         self.size = len(args)
         self.dat = [0] * len(self)

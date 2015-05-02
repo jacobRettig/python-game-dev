@@ -28,17 +28,23 @@ class Map(Base):
         self._base_, self._baseW_, self._baseH_ = base, textWidth, textHeight
         self.cellWidth, self.cellHeight = cellWidth, cellHeight
         
-    def _get_base(self):
+    @property
+    def base(self):
         return self._base_
-    def set_base(self, v):
+    @base.setter
+    def base(self, v):
         raise AttributeError
-    def _get_baseW(self):
+    @property
+    def baseW(self):
         return self._baseW_
-    def set_baseW(self, v):
+    @baseW.setter
+    def baseW(self, v):
         raise AttributeError
-    def _get_baseH(self):
+    @property
+    def baseH(self):
         return self._baseH_
-    def set_baseH(self, v):
+    @baseH.setter
+    def baseH(self, v):
         raise AttributeError
     
     def reset(self, player):

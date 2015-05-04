@@ -8,7 +8,6 @@ import pygame
 
 from base import Base
 
-
 class World(Base):
     def __init__(self, screen, gameMap, timeSpeed=1):
         self._gameMap_, self._screen_, self._background_ = gameMap, screen, pygame.Surface(screen.get_size())
@@ -38,6 +37,7 @@ class World(Base):
     def background(self, v):
         raise AttributeError
     
+	# Jacob, the Camera class will handle drawing
     def draw(self):
         self.screen.blit(self.background, (0, 0))
         self.gameMap.draw(self)

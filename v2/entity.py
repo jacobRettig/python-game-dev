@@ -12,10 +12,11 @@ class Entity():
     def __init__(self, world, x, y, width, height, image = None):
         self.world = world
         self.pos = Vector2D(x, y)
+        self.delta = Vector2D(0, 0)
+
         self._width_, self._height_, width, height
         self._image_ = image
         self._animation_ = None
-        self._dx_, self._dy_ = None, None
         
     @property
     def width(self):
@@ -119,20 +120,20 @@ class Entity():
             return other.x >= self.l and other.x <= self.r and other.y >= self.t and other.y <= self.b
         else:
             raise AttributeError
-        
+
     @property
     def dx(self):
-        return self._dx_
+        return self.delta.x
     @dx.setter
     def dx(self, v):
-        self._dx_ = v
+        self.delta.x = v
 
     @property
     def dy(self):
-        return self._dy_
+        return self.delta.y
     @dy.setter
     def dy(self, v):
-        self._dy_ = v
+        self.delta.y = v
         
     @property    
     def image(self):

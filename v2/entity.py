@@ -22,6 +22,7 @@ class Entity():
             self.turnRate = Vector2D(turnRate[0], turnRate[1])
         else:
             self.turnRate = Vector2D(math.cos(turnRate), math.sin(turnRate))
+        self.move = self.movementClass(self)
         
     @staticmethod
     def movementClass(owner):
@@ -51,33 +52,10 @@ class Entity():
                     raise AttributeError
             def __setitem__(self, k, v):
                 raise AttributeError
+            def __iter__(self):
+                return (self.x, self.y).__iter__()
+        return Move()
         
-    @property
-    def width(self):
-        return self._width_
-    @width.setter
-    def width(self, v):
-        raise AttributeError
-    @property
-    def w(self):
-        return self._width_
-    @w.setter
-    def w(self, v):
-        raise AttributeError
-
-    @property
-    def height(self):
-        return self._height_
-    @height.setter
-    def height(self, v):
-        raise AttributeError
-    @property
-    def h(self):
-        return self._height_
-    @h.setter
-    def h(self, v):
-        raise AttributeError
-    
     @property
     def x(self):
         return self.pos.x
@@ -118,10 +96,10 @@ class Entity():
         
     @property
     def right(self):
-        return self.pos.x + self.w
+        return self.pos.x + self.s
     @right.setter
     def right(self, v):
-        self.pos.x = v - self.w
+        self.pos.x = v - self.s
     @property
     def r(self):
         return self.pos.x + self.w
@@ -152,39 +130,30 @@ class Entity():
 
     @property
     def dx(self):
-        return self.delta.x
+        return self.move.x
     @dx.setter
     def dx(self, v):
-        self.delta.x = v
+        self.move.x = v
 
     @property
     def dy(self):
-        return self.delta.y
+        return self.move.y
     @dy.setter
     def dy(self, v):
-        self.delta.y = v
+        self.move.y = v
         
     @property    
     def image(self):
-        return self._image_
+        return None
     @image.setter
     def image(self, v):
-        self._image_ = v
+        raise AttributeError
     
-    @property
-    def animation(self):
-        return self._animation_
-    @animation.setter
-    def animation(self, v):
-        self._animation_ = v
-        
     def destroy(self):
         self.owner.entityList.remove(self)
         
     #TODO
     def update(self):
         return False
-    def draw(self):
-        pass
     
     

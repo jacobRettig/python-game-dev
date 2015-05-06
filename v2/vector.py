@@ -25,9 +25,8 @@ class Vector(Iterable):
         return Vector(*self)
     
     def map(self, fn, *args):
-        v = self()
-        v[:] = map(fn, self, *self.prep(*args))
-        return v
+        self[:] = list(map(fn, self, *self.prep(*args)))
+        return self
         
     def reduce(self, fn, *args):
         return functools.reduce(fn, self, *args)
@@ -50,110 +49,92 @@ class Vector(Iterable):
     
     def __add__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: x + y), o)
-        return v
+        return v.map((lambda x, y: x + y), o)
     def __radd__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: y + x), o)
-        return v
+        return v.map((lambda x, y: y + x), o)
     def __iadd__(self, o):
-        self[:] = self.map((lambda x, y: x + y), o)
-        
+        return self.map((lambda x, y: x + y), o)
+    
     def __sub__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: x - y), o)
-        return v
+        return v.map((lambda x, y: x - y), o)
     def __rsub__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: y - x), o)
-        return v
+        return v.map((lambda x, y: y - x), o)
     def __isub__(self, o):
-        self[:] = self.map((lambda x, y: x - y), o)
+        return self.map((lambda x, y: x - y), o)
         
     def __mul__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: x * y), o)
-        return v
+        return v.map((lambda x, y: x * y), o)
+        
     def __rmul__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: y * x), o)
-        return v
+        return v.map((lambda x, y: y * x), o)
+        
     def __imul__(self, o):
-        self[:] = self.map((lambda x, y: x * y), o)
+        return self.map((lambda x, y: x * y), o)
         
     def __truediv__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: x / y), o)
-        return v
+        return v.map((lambda x, y: x / y), o)
+        
     def __rtruediv__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: y / x), o)
-        return v
+        return v.map((lambda x, y: y / x), o)
+        
     def __itruediv__(self, o):
-        self[:] = self.map((lambda x, y: x / y), o)
+        return self.map((lambda x, y: x / y), o)
     
     def __floordiv__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: x // y), o)
-        return v
+        return v.map((lambda x, y: x // y), o)
+        
     def __rfloordiv__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: y // x), o)
-        return v
+        return v.map((lambda x, y: y // x), o)
+        
     def __ifloordiv__(self, o):
-        self[:] = self.map((lambda x, y: x // y), o)
+        return self.map((lambda x, y: x // y), o)
     
     def __mod__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: x % y), o)
-        return v
+        return v.map((lambda x, y: x % y), o)
+        
     def __rmod__(self, o):
         v = self()
-        v[:] = v.map((lambda x , y: y % x), o)
-        return v
+        return v.map((lambda x , y: y % x), o)
+        
     def __imod__(self, o):
-        self[:] = self.map((lambda x, y: x % y), o)
+        return self.map((lambda x, y: x % y), o)
         
     def __pow__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: x ** y), o)
-        return v
+        return v.map((lambda x, y: x ** y), o)
+        
     def __rpow__(self, o):
         v = self()
-        v[:] = v.map((lambda x, y: y ** x), o)
-        return v
+        return v.map((lambda x, y: y ** x), o)
+        
     def __ipow__(self, o):
-        self[:] = self.map((lambda x, y: x ** y), o)
+        return self.map((lambda x, y: x ** y), o)
         
     def __neg__(self):
         v = self()
-        v[:] = v.map((lambda x: -x))
-        return v
+        return v.map((lambda x: -x))
+        
     def __abs__(self):
         v = self()
-        v[:] = v.map((lambda x: abs(x)))
-        return v
+        return v.map((lambda x: abs(x)))
+        
     def __pos__(self):
         v = self()
-        v[:] = v.map((lambda x: +x))
-        return v
-    
-    def __lshift__(self, o):
-        if isinstance(o, int):
-            v = self()
-            v[:] = v[:-o % len(v)] + v[-o % len(v):]
-            return v
-        raise TypeError
-    def __rshift__(self, o):
-        if isinstance(o, int):
-            v = self()
-            v[:] = v[:o % len(v)] + v[o % len(v):]
-            return v
-        raise TypeError
-    
+        return v.map((lambda x: +x))
+        
     def swap(self, i, j):
         v = self()
         v[i] = self[j]
         v[j] = self[i]
         return v
-    
+        

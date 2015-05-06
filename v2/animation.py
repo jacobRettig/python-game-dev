@@ -8,8 +8,6 @@ import math
 
 import pygame
 
-from base import Base
-
 def loadImages(path, extension, amount, isCardinal=True, resize=False, width=50, height=50):
     if isCardinal:
         imgs = [None] * 8
@@ -31,7 +29,7 @@ def loadImages(path, extension, amount, isCardinal=True, resize=False, width=50,
                 imgs[i] = pygame.transform.scale(imgs[i], (width, height))
         return imgs
     
-class Animation(Base):
+class Animation():
     N = 0
     NE = 1
     NW = 2
@@ -46,8 +44,7 @@ class Animation(Base):
         self.owner, self.images, self.iterationSpeed = owner, images, iterationSpeed
         self.imageAmount = len(self.images[0])
         self.timeInit = 0
-        self.displayDirections = True
-        self.debug = {}
+        self.displayDirections = False
         
     def start(self):
         self.timeInit = self.owner.time

@@ -5,18 +5,52 @@ Created on Apr 20, 2015
 @author: jacobrettig
 '''
 
+from collections import Iterable
+import math
+
 from vector2d import Vector2D
 
 
 class Entity():
-    def __init__(self, world, x, y, width, height, image = None):
+    def __init__(self, world, x, y, side, speed, turnRate=math.pi/8):
         self.world = world
         self.pos = Vector2D(x, y)
-        self.delta = Vector2D(0, 0)
-
-        self._width_, self._height_, width, height
-        self._image_ = image
-        self._animation_ = None
+        self.dir = Vector2D(1, 0)
+        self.speed = speed
+        
+        if isinstance(turnRate, Iterable):
+            self.turnRate = Vector2D(turnRate[0], turnRate[1])
+        else:
+            self.turnRate = Vector2D(math.cos(turnRate), math.sin(turnRate))
+        
+    @staticmethod
+    def movementClass(owner):
+        class Move(Vector2D):
+            def __init__(self):
+                pass
+            
+            @property
+            def x(self):
+                return self.owner.speed * self.owner.dir.x
+            @x.setter
+            def x(self, v):
+                raise AttributeError
+            @property
+            def y(self):
+                return self.owner.speed * self.owner.dir.y
+            @y.setter
+            def y(self, v):
+                raise AttributeError
+            
+            def __getitem__(self, k):
+                if k == 0:
+                    return self.x
+                elif k == 1:
+                    return self.y
+                else:
+                    raise AttributeError
+            def __setitem__(self, k, v):
+                raise AttributeError
         
     @property
     def width(self):
@@ -43,11 +77,6 @@ class Entity():
     @h.setter
     def h(self, v):
         raise AttributeError
-    
-    def __getitem__(self, k):
-        return self.pos.__getitem__(k)
-    def __setitem__(self, k, v):
-        return self.pos.__setitem__(k, v)
     
     @property
     def x(self):

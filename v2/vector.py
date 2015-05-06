@@ -156,4 +156,4 @@ class Vector(Iterable):
         v[i] = self[j]
         v[j] = self[i]
         return v
- 
+    

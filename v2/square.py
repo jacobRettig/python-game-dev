@@ -140,21 +140,13 @@ class Square(Iterable):
         
 #     init quick get corner and center x&y values
     x = GS('tl', 'x')
-    l = GS('tl', 'x')
-    left = GS('tl', 'x')
     y = GS('tl', 'y')
-    b = GS('tl', 'y')
-    bottom = GS('tl', 'y')
     
     cx = GS('cen', 'x')
     cy = GS('cen', 'y')
     
     ox = GS('br', 'x')
-    r = GS('br', 'x')
-    right = GS('br', 'x')
     oy = GS('br', 'y')
-    t = GS('br', 'y')
-    top = GS('br', 'y')
         
         
 #     specific to square

@@ -233,7 +233,7 @@ class Square(Iterable):
     @property
     def side(self):
         return self._side_
-    @sider.setter
+    @side.setter
     def side(self, value):
         if value < 0:
             value = abs(value)

@@ -4,6 +4,8 @@ Created on May 9, 2015
 @author: lisarettig
 '''
 
+from vector2d import Vector2D
+
 class InstanceGuard(object):
     def __init__(self, name, defaultFn, fset=None, fget=None, fdel=None, doc=None, **kwargs):
         self.name = name
@@ -64,3 +66,14 @@ class GS(object):
 
     def __delete__(self, inst):
         return delattr(recut(getattr, (inst,) + self.path), self.attr)
+    
+    
+class Vector2DReadOnly(Vector2D):
+    def __init__(self, *args):
+        self.hasInit = False
+        Vector2D.__init__(self, *args)
+        self.hasInit = True
+    
+    def __setitem__(self, key, value):
+        raise AttributeError
+    

@@ -6,27 +6,8 @@ Created on May 9, 2015
 
 from vector2d import Vector2D
 from collections import Iterable
-import math
+import math, util
 
-# quick get/set based on property class
-# to avoid pointless @property&v.setter spam
-class GS(object):
-    def __init__(self, name, attr):
-        self.name, self.attr = name, attr
-        
-    def __get__(self, inst, type=None):
-        if inst is None:
-            return self
-        print("instance:{}".format(dir(inst)))
-#         print("name:{}, val:{}".format(self.name), getattr(inst, self.name))
-        return getattr(getattr(inst, self.name), self.attr)
-
-    def __set__(self, inst, value):
-        setattr(getattr(inst, self.name), self.attr, value)
-
-    def __delete__(self, inst):
-        return delattr(getattr(inst, self.name), self.attr)
-    
     
     
 # Will have a point relative to the owner's coords with a vertical and horizontal dilation multiplied by var 'side'
@@ -86,28 +67,6 @@ def refPoint(owner, h, v):
 #    return the class with it's local scope saved
     return RefPoint()
 
-
-# prevent the deletion and overwriting of hidden Points instance instead of just replacing the hidden point's values 
-class SafeSet(object):
-#     name = name of hidden instance syntax '_{name}_'
-    def __init__(self, name):
-        self.name = name
-        
-#    access the hidden variable
-    def __get__(self, inst, type=None):
-        if inst is None:
-            return self
-        return getattr(inst, "_{}_".format(self.name))
-
-#     instead of overwriting instance, just change internal values
-    def __set__(self, inst, value):
-        self.__get__(inst).x = value[0]
-        self.__get__(inst).y = value[1]
-
-#     disallow deletion
-    def __delete__(self, inst):
-        raise AttributeError("can't delete attribute")
-    
 # raised when geometric logic is broken
 class InvalidGeometry(Exception):
     pass
@@ -119,34 +78,46 @@ class Square(Iterable):
 #     data = (x, y, side length)
     def __init__(self, data = (0, 0, 0)):
 #         init side length
-        self._side_ = data[2]
+        self._side = data[2]
         
 #         init primary position reference location
         self.tl = Vector2D(data[0], data[1])
         
 #         init all other points relative to top left
-        self._tr_ = refPoint(self, 1, 0)
-        self._bl_ = refPoint(self, 0, 1)
-        self._br_ = refPoint(self, 1, 1)
-        self._cen_ = refPoint(self, .5, .5)
+        self._tr = refPoint(self, 1, 0)
+        self._bl = refPoint(self, 0, 1)
+        self._br = refPoint(self, 1, 1)
+        self._cen = refPoint(self, .5, .5)
         
         
 #     this prevents overwriting instance variables
-    tr = SafeSet('tr')
-    bl = SafeSet('bl')
-    br = SafeSet('br')
-    cen = SafeSet('cen')
+    @util.InstanceGuard('_tr', 'set')
+    def tr(self, value): 
+        self.tr.x = value[0]
+        self.tr.y = value[1]
+    @util.InstanceGuard('_bl', 'set')
+    def bl(self, value): 
+        self.bl.x = value[0]
+        self.bl.y = value[1]
+    @util.InstanceGuard('_br', 'set')
+    def br(self, value): 
+        self.br.x = value[0]
+        self.br.y = value[1]
+    @util.InstanceGuard('_cen', 'set')
+    def cen(self, value): 
+        self.cen.x = value[0]
+        self.cen.y = value[1]
         
         
 #     init quick get corner and center x&y values
-    x = GS('tl', 'x')
-    y = GS('tl', 'y')
+    x = util.GS('x', 'tl')
+    y = util.GS('y', 'tl')
     
-    cx = GS('cen', 'x')
-    cy = GS('cen', 'y')
+    cx = util.GS('x', 'cen')
+    cy = util.GS('y', 'cen')
     
-    ox = GS('br', 'x')
-    oy = GS('br', 'y')
+    ox = util.GS('x', 'br')
+    oy = util.GS('y', 'br')
         
         
 #     specific to square
@@ -230,15 +201,12 @@ class Square(Iterable):
     
 #     object behavior methods
 
-    @property
-    def side(self):
-        return self._side_
-    @side.setter
+    @util.InstanceGuard('_side', 'set')
     def side(self, value):
         if value < 0:
             value = abs(value)
             self.tl -= value
-        self._side_ = value
+        self._side = value
     
     def __str__(self):
         return "[x:{x}, y:{y}, side length:{side}]".format(x=self.x, y=self.y, side=self.side)
@@ -319,4 +287,3 @@ class Square(Iterable):
 #     clone self
     def __call__(self):
         return Square((self.x, self.y, self.side))
-    

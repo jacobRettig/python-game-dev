@@ -6,7 +6,7 @@ Created on Apr 20, 2015
 '''
 
 from collections import Iterable
-import math
+import math, util
 
 from vector2d import Vector2D
 from square import Square
@@ -30,6 +30,51 @@ def binaryInsertionSort(compareFunction, sortList, *items):
     return sortList
 
 
+def deltaInstance(owner):
+    class Delta(Vector2D):
+        def __init__(self):
+            pass
+        
+#         getters and setters for x&y
+        @property
+        def x(self):
+            return owner.dir.x * owner.speed
+            
+        @property
+        def y(self):
+            return owner.dir.y * owner.speed
+            
+#         override normal Vector stuff to prevent unnecessary crashes
+        def __len__(self):
+            return 2
+        
+        def __getitem__(self, k):
+            if k == 0 or k == 'x':
+                return self.x
+            elif k == 1 or k == 'y':
+                return self.y
+            else:
+                raise IndexError
+        def __setitem__(self, k, v):
+            if k == 0 or k == 'x':
+                self.x = v
+            elif k == 1 or k == 'y':
+                self.y = v
+            else:
+                raise IndexError
+
+        @property
+        def list(self):
+            return [self.x, self.y]
+        
+        def __iter__(self):
+            return self.list.__iter__()
+        
+#         remove reference and just use as a normal point
+        def __call__(self):
+            return Vector2D(self.x, self.y)    
+#    return the class with it's local scope saved
+    return Delta()
 
 
 
@@ -38,6 +83,7 @@ class Entity(GameObject):
         GameObject.__init__(self, world, pos)
         self.dir = direction
         self.speed = speed
+        self._delta = deltaInstance(self)
         try:
             if len(turnRate) != 2:
                 raise TypeError
@@ -52,35 +98,12 @@ class Entity(GameObject):
             else:
                 raise TypeError("type : {}".format(type(turnRate)))
             
+            
+    delta = util.InstanceGuard('_delta', None)
         
-    @property
-    def dx(self):
-        return self.move.x
-    @dx.setter
-    def dx(self, v):
-        self.move.x = v
+    dx = util.GS('x', 'delta')
+    dy = util.GS('y', 'delta')
 
-    @property
-    def dy(self):
-        return self.move.y
-    @dy.setter
-    def dy(self, v):
-        self.move.y = v
-        
-    @property    
-    def image(self):
-        return None
-    @image.setter
-    def image(self, v):
-        raise AttributeError
-    
-    def destroy(self):
-        self.owner.entityList.remove(self)
-        
-    #TODO
-    def update(self):
-        return False
-    
     
 class EntitySight(Entity):
     def __init__(self, world, x, y, side, speed, turnRate=math.pi/8, sightVec=(math.sqrt(2)*5, math.sqrt(2)*5)):
@@ -88,97 +111,7 @@ class EntitySight(Entity):
         
         self.sightVec = Vector2D(*sightVec)
     
-    def seen(self):
-        cl = self.dir.angleAdd(self.sightVec)
-        cr = self.dir.angleSub(self.sightVec)
-        x1, x2 = min(0, cl.x, cr.x) + self.cx, max(0, cl.x, cr.x) + self.cx
-        y1, y2 = min(0, cl.y, cr.y) + self.cy, max(0, cl.y, cr.y) + self.cy
-        
-        Es = tuple()
-        for E in self.world.getVisibleSection(self, (x1, y1, x2, y2)):
-            Es += (self.visibleLines(E),)
-            
-#         1: a > b    0:a == b    -1:a < b
-        def compare(a, b):
-            if a[3] == b[3] and a[4] == b[4]:
-                return 0
-            if a[3] < 0 ^ b[3] < 0:
-                if a[3] < 0:
-                    return -1
-                else:
-                    return 1
-            if a[3] * b[4] > a[4] * b[3]:
-                if a[3] < 0:
-                    return 1
-                else:
-                    return -1
-            else:
-                if a[3] < 0:
-                    return -1
-                else:
-                    return 1
-            
-        seen = []
-        pre, post = [], []
-        for E in Es:
-            if None in E:
-                seen.append(E)
-            elif E[2].sinSub(cr) > 0 and E[2].sinSub(cl) < 0:
-                binaryInsertionSort(compare, pre, E + E[1].angleSub(cr))
-            elif E[1].sinSub(cr) > 0 and E[1].sinSub(cl) < 0:
-                binaryInsertionSort(compare, post, E + E[2].angleSub(cr))
-        
-#         checks if inside any opaque objects
-        for E in seen:
-            if E[0].isOpaque:
-                return seen
-        
-        
-
-        
-
-#     returns (E, left, right)
-    def visibleLines(self, E):
-        x, y = 2, 2
-        
-        if E.x < self.cx:
-            if E.x + E.side > self.cx:
-                x = 1
-            else:
-                x = 0
-        if E.y < self.cy:
-            if E.y + E.side > self.cy:
-                y = 1
-            else:
-                y = 0
-        
-        corners = (1, 2)
-        if x == 0:
-            if y == 0:
-                corners = (2, 1)
-            elif y == 1:
-                corners = (3, 1)
-            else:
-                corners = (3, 0)
-        if x == 1:
-            if y == 0:
-                corners = (2, 3)
-            elif y == 1:
-                corners = (-0, -0)
-            else:
-                corners = (1, 0)
-        else:
-            if y == 0:
-                corners = (0, 3)
-            elif y == 1:
-                corners = (0, 2)
-        
-        if -1 in corners:
-            return (E, None, None)
-        else:
-            cnr = (E.pos, E.pos + (E.side, 0), E.pos + (0, E.side), E.opposite)
-            return (E, cnr[corners[0]] - self.cen, cnr[corners[1]] - self.cen)
-        
+   
         
         
     

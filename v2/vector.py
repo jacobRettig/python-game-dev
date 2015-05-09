@@ -17,7 +17,7 @@ class Vector(Iterable):
     TAU = math.pi * 2
     
     def __str__(self):
-        return "[<" + self.reduce((lambda x, y: str(x) + ", " + str(y))) + ">]"
+        return "[< " + self.reduce((lambda x, y: str(x) + ", " + str(y))) + " >]"
     
     def __len__(self):
         return self.size

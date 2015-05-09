@@ -69,4 +69,16 @@ class Vector2D(Vector):
     def dotproduct(self, o):
         return (self * o).sum
     
-    
+#     Angle addition formulae
+    def sinAdd(self, other):
+        return self.y * other[0] + self.x * other[1]
+    def sinSub(self, other):
+        return self.y * other[0] - self.x * other[1]
+    def cosAdd(self, other):
+        return self.x * other[0] - self.y * other[1]
+    def cosSub(self, other):
+        return self.x * other[0] + self.y * other[1]
+    def angleAdd(self, other):
+        return Vector2D(self.cosAdd(other), self.sinAdd(other))
+    def angleSub(self, other):
+        return Vector2D(self.cosSub(other), self.sinSub(other))

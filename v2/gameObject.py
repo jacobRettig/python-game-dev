@@ -22,5 +22,6 @@ class GameObject(Square):
     def image(self):
         raise AttributeError("No Image Getter Defined")
     
+#    if returns True then delete the Instance
     def update(self):
-        pass
+        False

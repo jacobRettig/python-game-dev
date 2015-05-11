@@ -6,52 +6,20 @@ Created on Apr 29, 2015
 
 import math
 
-from base import Base
-from entity import Entity
+import entity
 
-
-class Enemy(Entity):
-    def __init__(self, world, x, y, width, height, sightDistance, sightSpread, hp = 30, image = None):
-        Entity.__init__(self, world, x, y, width, height, image)
-        self.hp, self.sightDistance, self.sightSpread = hp, sightDistance, sightSpread
-    
-    @property
-    def sightHypot(self):
-        return self._sightHypot_
-    @sightHypot.setter
-    def sightHypot(self, v):
-        self.sightDistance = math.sqrt(v)
-    @property    
-    def sightDistance(self):
-        return self._sightDistance_
-    @sightDistance.setter
-    def sightDistance(self, v):
-        self._sightDistance_ = v
-        self._sightHypot = v ** 2
+class Enemy(entity.EntityVision):
+    def __init__(self, world, pos, prevNode, nextNode, direction=(1,0), speed=5, turnRate=math.pi/16, visDis=6, visVec=(1,0), hp=20):
+        entity.EntityVision.__init__(world, pos, direction, speed, turnRate, visDis, visVec)
+        self.prevNode, self.nextNode = prevNode, nextNode
+        self.target = nextNode
+        self.sees = []
         
-    @property
-    def sightSpread(self):
-        return self._sightSpread_
-    @sightSpread.property
-    def sightSpread(self, v):
-        self._sightCos_ = math.cos(v)
-        self._sightSin_ = math.sin(v)
-        self._sightSpread_ = v
     
-    @property
-    def sightCos(self):
-        return self._sightCos_
-    @sightCos.getter
-    def sightCos(self, v):
-        raise AttributeError
-    @property
-    def sightSin(self):
-        return self._sightSin_
-    @sightSin.getter
-    def sightSin(self, v):
-        raise AttributeError
+    def update(self):
+        self.sees = entity.EntityVision.sight()
+        return entity.EntityVision.update(self)
     
         
         
-        
-        
+    

@@ -7,13 +7,9 @@ Created on Apr 27, 2015
 import math
 from random import Random
 
-from base import Base
-
-
 rand = Random()
 
-
-class Map(Base):
+class Map():
     TileCode = ["EMPTY",
         "WALL",
         "NODE",

@@ -6,10 +6,7 @@ Created on Apr 20, 2015
 
 import pygame
 
-from base import Base
-
-
-class World(Base):
+class World():
     def __init__(self, screen, gameMap, timeSpeed=1):
         self._gameMap_, self._screen_, self._background_ = gameMap, screen, pygame.Surface(screen.get_size())
         

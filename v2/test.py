@@ -32,7 +32,7 @@ def isShiftDown():
 
 #Initialize variables
 MASTER_SHEET = spriteSheetSimple.SpriteSheetControl()
-sheet = spriteSheetSimple.SpriteSheet(MASTER_SHEET, shoes='black', pants='skirt', hair='bedhead', eyes='green', left_hand='arrow',\
+sheet = spriteSheetSimple.SpriteSheet(MASTER_SHEET, gender='female', shoes='black', pants='skirt', hair='bedhead', eyes='green', left_hand='arrow',\
      right_hand="recurvebow")
 
 #main infinite loop
@@ -54,7 +54,7 @@ def main():
 #         draw background
         screen.blit(background, (0, 0))
 #         draw calls
-        screen.blit(pygame.transform.scale(sheet.image, (700, 700)), (0, 0))
+        screen.blit(sheet.image, (0, 0))
 #         loop ending
         pygame.display.flip()
         clock.tick(TICK_SPEED)

@@ -7,11 +7,13 @@ Created on Apr 20, 2015
 
 from collections import Iterable
 import math, util
-
-from vector2d import Vector2D
-from square import Square
-from gameObject import GameObject
 from numbers import Number
+
+from gameObject import GameObject
+from square import Square
+import square
+from vector2d import Vector2D
+
 
 def binaryInsertionSort(compareFunction, sortList, *items):
     if len(sortList) == 0 and len(items) != 0:
@@ -34,36 +36,16 @@ def binaryInsertionSort(compareFunction, sortList, *items):
 
 
 def deltaInstance(owner):
-    class Delta(util.Vector2DReadOnly):
-        def __init__(self):
-            pass
-        
-#         override normal Vector stuff to prevent unnecessary crashes
-        def __len__(self):
-            return 2
-        
-        def __getitem__(self, k):
-            if k == 0 or k == 'x':
-                return owner.dir.x * owner.speed
-            elif k == 1 or k == 'y':
-                return owner.dir.x * owner.speed
-            else:
-                raise IndexError
+    @util.Vector2DCustom
+    def delta(self, k):
+        if k == 0 or k == 'x':
+            return owner.dir.x * owner.speed
+        elif k == 1 or k == 'y':
+            return owner.dir.x * owner.speed
+        else:
+            raise IndexError
 
-        @property
-        def list(self):
-            return [self.x, self.y]
-        
-        def __iter__(self):
-            return self.list.__iter__()
-        
-#         remove reference and just use as a normal point
-        def __call__(self):
-            return Vector2D(self.x, self.y)    
-#    return the class with it's local scope saved
-    return Delta()
-
-
+    return delta
 
 class Entity(GameObject):
     
@@ -127,66 +109,26 @@ class Entity(GameObject):
     
     
 def visLInstance(owner):
-    class VisLVec(util.Vector2DReadOnly):
-        def __init__(self):
-            pass
-        
-#         override normal Vector stuff to prevent unnecessary crashes
-        def __len__(self):
-            return 2
-        
-        def __getitem__(self, k):
-            if k == 0 or k == 'x':
-                return owner.dir.angleAdd(owner.visVec).x * owner.visDis
-            elif k == 1 or k == 'y':
-                return owner.dir.angleAdd(owner.visVec).y * owner.visDis
-            else:
-                raise IndexError
-
-        @property
-        def list(self):
-            return [self.x, self.y]
-        
-        def __iter__(self):
-            return self.list.__iter__()
-        
-#         remove reference and just use as a normal point
-        def __call__(self):
-            return Vector2D(self.x, self.y)    
-#    return the class with it's local scope saved
-    return VisLVec()
+    @util.Vector2DCustom
+    def visL(self, k):
+        if k == 0 or k == 'x':
+            return owner.dir.angleAdd(owner.visVec).x * owner.visDis
+        elif k == 1 or k == 'y':
+            return owner.dir.angleAdd(owner.visVec).y * owner.visDis
+        else:
+            raise IndexError
+    return visL
 
 def visRInstance(owner):
-    class VisRVec(util.Vector2DReadOnly):
-        def __init__(self):
-            pass
-        
-#         override normal Vector stuff to prevent unnecessary crashes
-        def __len__(self):
-            return 2
-        
-        def __getitem__(self, k):
-            if k == 0 or k == 'x':
-                return owner.dir.angleSub(owner.visVec).x * owner.visDis
-            elif k == 1 or k == 'y':
-                return owner.dir.angleSub(owner.visVec).y * owner.visDis
-            else:
-                raise IndexError
-
-        @property
-        def list(self):
-            return [self.x, self.y]
-        
-        def __iter__(self):
-            return self.list.__iter__()
-        
-#         remove reference and just use as a normal point
-        def __call__(self):
-            return Vector2D(self.x, self.y)    
-#    return the class with it's local scope saved
-    return VisRVec()
-
-
+    @util.Vector2DCustom
+    def visR(self, k):
+        if k == 0 or k == 'x':
+            return owner.dir.angleSub(owner.visVec).x * owner.visDis
+        elif k == 1 or k == 'y':
+            return owner.dir.angleSub(owner.visVec).y * owner.visDis
+        else:
+            raise IndexError
+    return visR
 
 
     
@@ -209,8 +151,8 @@ class EntitySight(Entity):
 
 #     ROUGH as in very rough first version of the vision method 
     def sight(self):
-        x = (0, visL.x, visR.x)
-        y = (0, visL.y, visR.y)
+        x = (0, self.visL.x, self.visR.x)
+        y = (0, self.visL.y, self.visR.y)
         sq = Square((min(x), min(y), max(max(x) - min(x), max(y) - min(y))))
         cen = self.cen()
         
@@ -218,7 +160,6 @@ class EntitySight(Entity):
         sL = self.visL.angleSub(sR).angle
         
         sq += cen
-        
         
         boundingRect = []
         for obj in self.world.WorldObjectList:
@@ -228,23 +169,23 @@ class EntitySight(Entity):
         keepGoing = True
         seen = []
         rangedList = []
+        fn = (lambda x, y: x[2] - y[2])
         for obj in boundingRect:
             try:
                 oL, oR = obj.normalProjection(cen)
                 oL = oL.angleSub(sR).angle
                 oR = oR.angleSub(sR).angle
                 if oR >= 0 and oR <= sL:
-                    rangedList.append((obj, min(sL, oL), oR))
+                    rangedList = binaryInsertionSort(fn, rangedList, (obj, min(sL, oL), oR))
                 elif oL >= 0 and oL <= sL:
-                    rangedList.append((obj, oL, max(0, oR)))
+                    rangedList = binaryInsertionSort(fn, rangedList, (obj, oL, max(0, oR)))
             except square.InvalidGeometry:
                 seen.append(obj)
                 if obj.isOpaque:
                     obj.keepGoing = False
                     
-        fn = (lambda x, y: x[2] - y[2])
-        rangedList = binaryInsertionSort(fn, [], *rangedList)
-        
+        if keepGoing is False:
+            return seen
         for obj in rangedList:
             ang = obj[2]
             success = True
@@ -262,6 +203,7 @@ class EntitySight(Entity):
                         
             if success:
                 seen.append(obstacle[0])
+                
         return seen
     
     def onSight(self, target):

@@ -16,6 +16,9 @@ class Vector(Iterable):
         
     TAU = math.pi * 2
     
+    def __repr__(self):
+        return self.__str__();
+
     def __str__(self):
         return "[< " + self.reduce((lambda x, y: str(x) + ", " + str(y))) + " >]"
     
@@ -72,6 +75,9 @@ class Vector(Iterable):
     def __imul__(self, o):
         return self.map((lambda x, y: x * y), o)
         
+    def __div__(self, o):
+        return self().map((lambda x, y: x / y), o)
+
     def __truediv__(self, o):
         return self().map((lambda x, y: x / y), o)
     def __rtruediv__(self, o):

@@ -5,11 +5,14 @@ Created on Apr 20, 2015
 @author: jacobrettig
 '''
 
+import builtins
 from collections import Iterable
+import functools
 import math, util
 from numbers import Number
 
 from gameObject import GameObject
+from library.v2.spriteSheetLPC import AnimationLPC
 from square import Square
 import square
 from vector2d import Vector2D
@@ -35,6 +38,8 @@ def binaryInsertionSort(compareFunction, sortList, *items):
     return sortList
 
 
+
+
 def deltaInstance(owner):
     @util.Vector2DCustom
     def delta(self, k):
@@ -49,8 +54,8 @@ def deltaInstance(owner):
 
 class Entity(GameObject):
     
-    def __init__(self, world, pos, direction=(1,0), speed = 1, turnRate=math.pi/16, hp=20):
-        GameObject.__init__(self, world, pos)
+    def __init__(self, world, dim, direction=(1,0), speed = 1, turnRate=math.pi/16, hp=20):
+        GameObject.__init__(self, world, dim)
         self.dir = direction
         self.turnRate = turnRate
         self.speed = speed
@@ -108,6 +113,57 @@ class Entity(GameObject):
     
     
     
+    
+
+class Mob(Entity):
+    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=1, turnRate=math.pi/16, hp=20):
+        Entity.__init__(self, world, dim, direction, speed, turnRate, hp)
+        self.isMoving = False
+        self.isActing = False
+        self.act = 0
+        self.acts = []
+        
+        self.animation = AnimationLPC(self, spriteSheet)
+        
+    @property
+    def image(self):
+        return self.animation.image
+    
+    @property
+    def action(self):
+        if self.isActing is True:
+            try:
+                return self.acts[self.act].action
+            except:
+                pass
+        if self.isMoving:
+            return 'walk'
+        else:
+            return 'none'
+        
+#     return True if movement should be undone
+    def onCollision(self, obstacle):
+        return obstacle.isSolid
+    
+    def update(self):
+        if self.isMoving is True:
+            self.move(1)
+            def OR(a, b):
+                return a or b
+            if functools.reduce(builtins.bool.__or__, (self.onCollision(obj) for obj in self.world.objects if obj in self)):
+                self.move(-1)
+        return Entity.update(self)
+    
+    @property
+    def time(self):
+        return self.world.time
+    
+    
+    
+    
+    
+    
+    
 def visLInstance(owner):
     @util.Vector2DCustom
     def visL(self, k):
@@ -131,10 +187,12 @@ def visRInstance(owner):
     return visR
 
 
+
     
-class EntitySight(Entity):
-    def __init__(self, world, pos, direction=(1,0), speed=5, turnRate=math.pi/16, visDis=6, visVec=(1,0), hp=20):
-        Entity.__init__(self, world, pos, direction, speed, turnRate, hp=20)
+    
+class MobSight(Mob):
+    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=5, turnRate=math.pi/16, visDis=6, visVec=(1,0), hp=20):
+        Mob.__init__(self, world, dim, spriteSheet, direction, speed, turnRate, hp)
         self.visDis = visDis
         self.visVec = visVec
         self._visL = visLInstance(self)
@@ -210,4 +268,4 @@ class EntitySight(Entity):
         pass
     
     def update(self):
-        return Entity.update(self)
+        return Mob.update(self)

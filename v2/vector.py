@@ -77,7 +77,11 @@ class Vector(Iterable):
         
     def __div__(self, o):
         return self().map((lambda x, y: x / y), o)
-
+    def __rdiv__(self, o):
+        return self().map((lambda x, y: y / x), o)
+    def __idiv__(self, o):
+        return self.map((lambda x, y: x / y), o)
+        
     def __truediv__(self, o):
         return self().map((lambda x, y: x / y), o)
     def __rtruediv__(self, o):

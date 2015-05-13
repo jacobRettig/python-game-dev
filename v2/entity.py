@@ -133,7 +133,9 @@ class Mob(Entity):
     def action(self):
         if self.isActing is True:
             try:
-                return self.acts[self.act].action
+                action = self.acts[self.act].action 
+                if action is not None:
+                    return action
             except:
                 pass
         if self.isMoving:
@@ -268,4 +270,7 @@ class MobSight(Mob):
         pass
     
     def update(self):
+        for seen in self.sight():
+            self.onSight(seen)
+            
         return Mob.update(self)

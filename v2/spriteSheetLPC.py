@@ -152,7 +152,7 @@ class AnimationLPC():
     def __init__(self, owner, spriteSheet=None, **kwargs):
         self.owner, self.spriteSheet = owner, spriteSheet
         if self.spriteSheet is None:
-            self.spriteSheet = LPC(owner)
+            self.spriteSheet = LPC(owner, SpriteSheetMaster())
         
         self.action = 'none'
         self.speed = 5

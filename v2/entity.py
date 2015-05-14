@@ -16,6 +16,7 @@ from library.v2.spriteSheetLPC import AnimationLPC
 from square import Square
 import square
 from vector2d import Vector2D
+import random
 
 
 def binaryInsertionSort(compareFunction, sortList, *items):
@@ -53,7 +54,7 @@ def deltaInstance(owner):
     return delta
 
 class Entity(GameObject):
-    def __init__(self, world, dim, direction=(1,0), speed = 1, turnRate=math.pi/16, hp=20):
+    def __init__(self, world, dim, direction=(1,0), speed=1, turnRate=math.pi/16, hp=20):
         GameObject.__init__(self, world, dim)
         self.dir = direction
         self.turnRate = turnRate
@@ -86,7 +87,7 @@ class Entity(GameObject):
                     self.dir = self.dir.angleSub(self.turnRate)
     
     def move(self, amount=0):    
-        self.tl += self.delta*amount * (self.world.time - self.lastTime)
+        self.tl += self.delta * amount * (self.world.time - self.lastTime)
     
     def update(self):
         val = self._update()
@@ -166,8 +167,13 @@ class Mob(Entity):
         Entity.__init__(self, world, dim, direction, speed, turnRate, hp)
         self.isMoving = False
         self.isActing = False
-        self.act = 0
+        self.act = -1
         self.acts = []
+        self.blurbs = {
+                       'text':[],
+                       'current':-1,
+                       'time':self.world.time + random.random() * 50
+                       }
         
         self.animation = AnimationLPC(self, spriteSheet)
         
@@ -175,6 +181,15 @@ class Mob(Entity):
         self.visVec = visVec
         self._visL = visLInstance(self)
         self._visR = visRInstance(self)
+    
+    @property
+    def blurb(self):
+        if self.world.time >= self.blurbs['time']:
+            self.blurbs['current'] = random.randint(0, len(self.blurbs['text'])) - 1
+        if self.blurbs['current'] is -1:
+            return ''
+        else:
+            return self.blurbs['text'][self.blurbs['current']]
         
     @property
     def image(self):
@@ -182,28 +197,33 @@ class Mob(Entity):
     
     @property
     def action(self):
-        if self.isActing is True:
-            try:
-                action = self.acts[self.act].action 
-                if action is not None:
-                    return action
-            except:
-                pass
-        if self.isMoving:
+        if self.act is not -1 and self.acts[self.act].action is not None:
+            if self.cycles != self.animation.cycles:
+                self.cycles = self.animation.cycles
+                self.acts[self.act].onCycle(self)
+                
+            return self.acts[self.act].action
+        elif self.isMoving:
             return 'walk'
         else:
             return 'none'
+    @action.setter
+    def action(self, value):
+        self.cycles = 0
+        self.act = value
+        if self.act is not -1:
+            self.acts[self.act].onStart(self)
         
 #     return True if movement should be undone
     def onCollision(self, obstacle):
         return obstacle.isSolid
     
     def _update(self):
-        for seen in self.sight():
+        self.seen = self.sight()
+        for self.seen in self.sight():
             self.onSight(seen)
         
-        
-        return Entity.update(self)
+        return Entity._update(self)
     
     @property
     def time(self):
@@ -255,16 +275,16 @@ class Mob(Entity):
                     
         if keepGoing is False:
             return seen
+        
         for obj in rangedList:
             ang = obj[2]
             success = True
-            disCheck = obj[0].cen.getdistance(cen) - obj[0].side
+            disCheck = obj[0].hypot(cen)
             for obstacle in rangedList:
                 if not obj is obstacle:
                     if ang < obstacle[2]:
                         break
-                    elif obstacle[0].isOpaque and ang < obstacle[1] and obstacle[0].getdistance(cen) \
-                      - obstacle[0].side < disCheck:
+                    elif obstacle[0].isOpaque and ang < obstacle[1] and obstacle[0].hypot(cen) < disCheck:
                         ang = obstacle[1]
                         if ang > obj[1]:
                             success = False

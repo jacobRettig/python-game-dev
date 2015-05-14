@@ -5,31 +5,43 @@ Created on May 13, 2015
 '''
 
 class Action():
-    def __init__(self, onStart=None):
-        self.owner = None
+    def __init__(self, action, onStart=None):
+        if action is not None and not isinstance(action, str):
+            raise TypeError('action = {a}    type = {t}'.format(a=action, t=type(action)))
         self._onStart = onStart
-        self.action = None
+        self.action = action
         
     def setOnStart(self, onStart):
         self._onStart = onStart
         return self
-    def onStart(self, *args, **kwargs):
+    def onStart(self, owner):
         if self._onStart is not None:
-            return self.onStart(self, *args, **kwargs)
+            return self.onStart(self, owner)
     
-    def __call__(self, owner):
-        self.owner = owner
-        return self
+    def __call__(self, onStart):
+        return Action(self.action, onStart)
     
-#     True if keep cycling
-    def onCycle(self, *args, **kwargs):
-        if self._onCycle is not None:
-            return self._onCycle(self, *args, **kwargs)
-        return False
     def setOnCycle(self, onCycle):
         self._onCycle = onCycle
         return self
+    def onCycle(self, owner):
+        if self._onCycle is not None:
+            return self._onCycle(self, owner)
+        else:
+            owner.action = -1
 
-@Action
-def slash(self):
-    self.action = 'slash'
+@Action('slash')
+def slash(self, owner):
+    for seen in owner.seen:
+        if isinstance(seen, Mob) and seen.hypot(owner.cen) <= 15:
+            seen.hp -= 2
+            
+@Action('stab')
+def stab(self, owner):
+    for seen in owner.seen:
+        if isinstance(seen, Mob) and seen.hypot(owner.cen) <= 10:
+            seen.hp -= 3
+             
+    
+    
+    

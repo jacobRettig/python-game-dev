@@ -5,8 +5,9 @@ Created on May 13, 2015
 '''
 import pygame
 
-from library.v2.entity import Mob
+from library.v2.entity import Mob, Entity
 from library.v2.spriteSheetLPC import AnimationLPC
+import action
 
 
 class Player(Mob):
@@ -16,7 +17,8 @@ class Player(Mob):
         
     @staticmethod
     def DEFAULT(world):
-        return Player(world, (1, 1, 5), AnimationLPC(self, hair='plain', shirt='brown', pants='teal', shoes='black'))
+        player = Player(world, (1, 1, 5), AnimationLPC(self, hair='plain', shirt='brown', pants='teal', shoes='black'))
+        player.acts[0] = action.slash
     
     def timeRate(self):
         t = self._timeRate
@@ -37,5 +39,10 @@ class Player(Mob):
             else:
                 self.turn(-1)
         
-        return Mob.update(self)
+        Mob._update(self)
+          
+        if pressed[pygame.K_SPACE] and self.act is -1:
+            self.action = 0
+        
+        return Entity._update(self)
     

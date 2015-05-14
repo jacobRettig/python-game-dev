@@ -4,55 +4,35 @@ Created on May 12, 2015
 @author: jacobrettig
 '''
 
+import pygame
+
 from gameObject import GameObject
 
-class TileConstant():
-    def __init__(self, **kwargs):
-        self.isOpaque = False
-        self.isCollidable = False
-        self.action = None
-        self.posX = None
-        self.posY = None
-        for key in ('isOpaque', 'isCollidable', 'action', 'imageFn'):
-            if key in kwargs:
-                setattr(self, key, kwargs.pop(key))
-        if len(kwargs) != 0:
-            raise Exception('left over kwargs : {}'.format(kwargs))
+def loadTerrain(path, width, height):
+    img = pygame.image.load(path)
+    images = []
+    for i in range(width):
+        images[i] = []
+        for j in range(height):
+            images[i][j] = img.subsurface((i * img.get_width() / width, j * img.get_height() / height, img.get_width() / width, img.get_height() / height))
+    return images
+
+
+class Tile(GameObject):
+    images = loadTerrain('terrain/terrain_atlas.png', 32, 32) 
     
-    def actionFn(self, viewer):
-        if not self.action is None:
-            return self.action(self, viewer)
-    
-    def actionSetter(self, fn):
-        self.action = fn
-        return self
+    def __init__(self, world, val, x, y):
+        GameObject.__init__(self, world, (x, y, 1))
+        if val in ' P':
+            self._image = self.images[30][10]
+        elif val in 'N#':
+            self.image = self.images[24][7]
+            self.isOpque = True
+            self.isSolid = True
         
-    def imageFn(self):
-        if not self.action is None:
-            return self.action(self)
-    
-    def imageFnSetter(self, fn):
-        self.imageFn = fn
-        return self
-    
-    
-    def getAdjacent(self, xDiff, yDiff):
-        raise Exception("not yet implemented")
-    
     @property
     def image(self):
-        return self.imageFn()
-    
-
-
-
-
-GRASS = TileConstant()
-@GRASS.imageFnSetter
-def GRASS(self):
-    
-
-
+        return self._image
 
 
 

@@ -5,12 +5,12 @@ Created on Apr 29, 2015
 '''
 
 import math
-from entity import MobSight
+from entity import Mob
 from library.v2.player import Player
 
-class Enemy(MobSight):
-    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=5, turnRate=math.pi/16, visDis=6, visVec=(1,0), hp=20):
-        MobSight.__init__(world, dim, spriteSheet, direction, speed, turnRate, visDis, visVec)
+class Enemy(Mob):
+    def __init__(self, world, dim, spriteSheet, *args, **kwargs):
+        Mob.__init__(world, dim, spriteSheet, *args, **kwargs)
         self.target = self.cen()
         
     def AITurn(self):
@@ -33,6 +33,6 @@ class Enemy(MobSight):
     def update(self):
         self.turn(self.AITurn())
         self.isMoving = self.AIMove()
-        return MobSight.update(self)
+        return Mob.update(self)
         
     

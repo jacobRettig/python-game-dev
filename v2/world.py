@@ -6,49 +6,42 @@ Created on Apr 20, 2015
 
 import pygame
 
+from library.v2.player import Player
+from map import Map as MapClass
+
+
 class World():
-    def __init__(self, screen, gameMap, timeSpeed=1):
-        self._gameMap_, self._screen_, self._background_ = gameMap, screen, pygame.Surface(screen.get_size())
+    def __init__(self, screen, mapText, timeSpeed=1):
+        self._screen, self._background = screen, pygame.Surface(screen.get_size())
+        self._map = MapClass(self, mapText)
         
         self.background.fill((255, 255, 255))
         
         self.timeSpeed = timeSpeed
         self.time = 0
         self.entityList = []
+        self.player = Player.DEFAULT(self)
         
     @property
-    def gameMap(self):
-        return self._gameMap_
-    @gameMap.setter
-    def gameMap(self, v):
-        raise AttributeError
+    def map(self):
+        return self._gameMap
     @property
     def screen(self):
-        return self._screen_
-    @screen.setter
-    def screen(self, v):
-        raise AttributeError
+        return self._screen
     @property
     def background(self):
-        return self._background_
-    @background.setter
-    def background(self, v):
-        raise AttributeError
+        return self._background
     
-    def draw(self):
-        self.screen.blit(self.background, (0, 0))
-        self.gameMap.draw(self)
-        
-        for entity in self.entityList:
-            entity.draw()
-        
-        pygame.display.flip()
-        
+    @property
+    def objectList(self):
+        return self.entityList + self.map.TileList
+    
     def update(self):
-        self.time += self.timeSpeed
+        self.time += self.timeSpeed * self.player.timeRate()
         
         for entity in self.entityList:
-            entity.update()
+            if entity.update():
+                self.entityList.remove(entity)
         
         
         

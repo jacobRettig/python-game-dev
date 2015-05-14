@@ -8,6 +8,7 @@ from random import Random
 
 from final.v2.vector2d import Vector2D
 from library.v2.square import Square
+from tile import Tile
 
 
 rand = Random()
@@ -125,11 +126,13 @@ class Map():
         
     
 class Map():
-    def __init__(self, text):
+    def __init__(self, world, text):
+        self.world = world
         self.text = text.splitlines()
         self.width = len(text[0])
         self.height = len(text)
         self.data = {}
+        self.empty = self.width * self.height
     
     def __len__(self):
         return (self.width, self.height)
@@ -139,14 +142,39 @@ class Map():
             k = (int(k[0]), int(k[1]))
             if k[0] < 0 and k[1] < 0 and k[0] >= self.width and k[1] >= self.height:
                 if str(k) not in self.data:
-                    self.data[str(k)] = Tile(self.text[k[1]][k[0]]))
+                    self.data[str(k)] = Tile(self.world, self.text[k[1]][k[0]], k[0], k[1])
+                    self.empty -= 1
                 return self.data[str(k)]
         raise IndexError(k)
     
     def __setitem__(self, k, v):
-        if isinstance(k, tuple) and len(k) == 2:
-            k = (int(k[0]), int(k[1]))
-            if k[0] < 0 and k[1] < 0 and k[0] >= self.width and k[1] >= self.height:
-                self.data[str(k)] = v
-                return
-        raise IndexError(k)
+        raise AttributeError
+    
+    def fillOutTiles(self):
+        for i in range(self.width):
+            for j in range(self.height):
+                self[i, j]
+    
+    @property
+    def tileList(self):
+        if self.empty is not 0:
+            self.fillOutTiles()
+        return self.data.values()
+    
+    def getTileRange(self, topLeft, bottomRight):
+        topLeft = Vector2D(topLeft)
+        bottomRight = Vector2D(bottomRight)
+        
+        results = []
+        i = topLeft.x
+        j = topLeft.y
+        while i <=  bottomRight.x:
+            while j <= bottomRight.y:
+                results.append(self[i, j])
+                j += self[0, 0].side
+            j = topLeft.y
+            i += self[0, 0].side
+        return results
+        
+    
+    

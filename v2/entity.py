@@ -53,7 +53,6 @@ def deltaInstance(owner):
     return delta
 
 class Entity(GameObject):
-    
     def __init__(self, world, dim, direction=(1,0), speed = 1, turnRate=math.pi/16, hp=20):
         GameObject.__init__(self, world, dim)
         self.dir = direction
@@ -62,6 +61,7 @@ class Entity(GameObject):
         self._delta = deltaInstance(self)
         
         self.hp = hp
+        self.lastTime = self.world.time
                 
     delta = util.InstanceGuard('_delta', None)
     @util.InstanceGuard('_turnRate', 'set')
@@ -77,18 +77,33 @@ class Entity(GameObject):
 #     basic movement
 
     def turn(self, amount=0):
-        if amount > 0:
-            for i in range(amount):
-                self.dir = self.dir.angleAdd(self.turnRate)
-        else:
-            for i in range(abs(amount)):
-                self.dir = self.dir.angleSub(self.turnRate)
+        if self.lastTime != self.world.time:
+            if amount > 0:
+                for i in range(amount):
+                    self.dir = self.dir.angleAdd(self.turnRate)
+            else:
+                for i in range(abs(amount)):
+                    self.dir = self.dir.angleSub(self.turnRate)
     
     def move(self, amount=0):    
-        self.tl += self.delta*amount
+        self.tl += self.delta*amount * (self.world.time - self.lastTime)
     
     def update(self):
-        return self.hp < 20
+        val = self._update()
+        self.lastTime = self.world.time
+        return val
+    
+    def _update(self):
+        if self.isMoving is True:
+            self.move(1)
+            def OR(a, b):
+                return a or b
+            if functools.reduce((lambda x, y: x is True or y is True),
+                 (self.onCollision(tile) for tile in self.world.map.getTileRange(self.tl, self.br)) +
+                 (self.onCollision(obj) for obj in self.world.entityList if obj in self)):
+                self.move(-1)
+        
+        return self.hp < 0
     
     @staticmethod
     def normVector(val):
@@ -115,53 +130,6 @@ class Entity(GameObject):
     
     
 
-class Mob(Entity):
-    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=1, turnRate=math.pi/16, hp=20):
-        Entity.__init__(self, world, dim, direction, speed, turnRate, hp)
-        self.isMoving = False
-        self.isActing = False
-        self.act = 0
-        self.acts = []
-        
-        self.animation = AnimationLPC(self, spriteSheet)
-        
-    @property
-    def image(self):
-        return self.animation.image
-    
-    @property
-    def action(self):
-        if self.isActing is True:
-            try:
-                action = self.acts[self.act].action 
-                if action is not None:
-                    return action
-            except:
-                pass
-        if self.isMoving:
-            return 'walk'
-        else:
-            return 'none'
-        
-#     return True if movement should be undone
-    def onCollision(self, obstacle):
-        return obstacle.isSolid
-    
-    def update(self):
-        if self.isMoving is True:
-            self.move(1)
-            def OR(a, b):
-                return a or b
-            if functools.reduce(builtins.bool.__or__, (self.onCollision(obj) for obj in self.world.objects if obj in self)):
-                self.move(-1)
-        return Entity.update(self)
-    
-    @property
-    def time(self):
-        return self.world.time
-    
-    
-    
     
     
     
@@ -192,13 +160,54 @@ def visRInstance(owner):
 
     
     
-class MobSight(Mob):
-    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=5, turnRate=math.pi/16, visDis=6, visVec=(1,0), hp=20):
-        Mob.__init__(self, world, dim, spriteSheet, direction, speed, turnRate, hp)
+class Mob(Entity):
+    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=5, turnRate=math.pi/16, visDis=6, visVec=(math.sqrt(2),)*2,
+         hp=20):
+        Entity.__init__(self, world, dim, direction, speed, turnRate, hp)
+        self.isMoving = False
+        self.isActing = False
+        self.act = 0
+        self.acts = []
+        
+        self.animation = AnimationLPC(self, spriteSheet)
+        
         self.visDis = visDis
         self.visVec = visVec
         self._visL = visLInstance(self)
         self._visR = visRInstance(self)
+        
+    @property
+    def image(self):
+        return self.animation.image
+    
+    @property
+    def action(self):
+        if self.isActing is True:
+            try:
+                action = self.acts[self.act].action 
+                if action is not None:
+                    return action
+            except:
+                pass
+        if self.isMoving:
+            return 'walk'
+        else:
+            return 'none'
+        
+#     return True if movement should be undone
+    def onCollision(self, obstacle):
+        return obstacle.isSolid
+    
+    def _update(self):
+        for seen in self.sight():
+            self.onSight(seen)
+        
+        
+        return Entity.update(self)
+    
+    @property
+    def time(self):
+        return self.world.time
         
     @util.InstanceGuard('_visVec', 'set')
     def visVec(self, val):
@@ -221,8 +230,8 @@ class MobSight(Mob):
         
         sq += cen
         
-        boundingRect = []
-        for obj in self.world.WorldObjectList:
+        boundingRect = self.world.map.getTileRange(self.tl, self.br)
+        for obj in self.world.entityList:
             if obj in sq:
                 boundingRect.append(obj)
                 
@@ -254,7 +263,7 @@ class MobSight(Mob):
                 if not obj is obstacle:
                     if ang < obstacle[2]:
                         break
-                    elif obstacle[0].isOpaque and ang < obstacle[1] and obstacle[0].cen.getdistance(cen) \
+                    elif obstacle[0].isOpaque and ang < obstacle[1] and obstacle[0].getdistance(cen) \
                       - obstacle[0].side < disCheck:
                         ang = obstacle[1]
                         if ang > obj[1]:
@@ -268,9 +277,3 @@ class MobSight(Mob):
     
     def onSight(self, target):
         pass
-    
-    def update(self):
-        for seen in self.sight():
-            self.onSight(seen)
-            
-        return Mob.update(self)

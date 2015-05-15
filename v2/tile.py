@@ -23,17 +23,24 @@ class Tile(GameObject):
     
     def __init__(self, world, val, x, y):
         GameObject.__init__(self, world, (x, y, 1))
-        if val in ' P':
-            self._image = self.images[30][10]
-        elif val in 'N#':
-            self.image = self.images[24][7]
+        if val in ' PN':
+            self.id = ' '
+        elif val in '#':
+            self.id = '#'
             self.isOpque = True
             self.isSolid = True
         
     @property
     def image(self):
-        return self._image
-
+        if self.id is ' ':
+            return self.images[30][10]
+        elif self.id is '#':
+            try:
+                if self.world.map[self.tl + (0, 1)].id is '#':
+                    return self.images[25][11]
+            except IndexError:
+                pass
+            return self.images[24][7]
 
 
 

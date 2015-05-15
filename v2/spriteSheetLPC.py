@@ -38,7 +38,7 @@ class SpriteSheetMaster():
 class LPC():
     TAG = {
         'gender':('male', 'female'),
-        'body':('light', 'dark', 'dark2', 'darkelf', 'darkelf2', 'tanned', 'tanned2'),
+        'body':('light', 'dark', 'dark2', 'darkelf', 'darkelf2', 'tanned', 'tanned2', 'skeleton'),
         'eyes':('blue', 'brown', 'gray', 'green', 'orange', 'purple', 'red', 'yellow'),
         'nose':('big', 'button', 'straight'),
         'ears':('big', 'elven'),
@@ -58,7 +58,7 @@ class LPC():
         }
     
     def __init__(self, master, **kwargs):
-        self.master, self.data, self._image_ = master, {}, None
+        self.master, self.data, self._image = master, {}, None
         for key in kwargs.keys():
             self[key] = kwargs[key]
     
@@ -72,14 +72,18 @@ class LPC():
             del(self.data[k])
         else:
             self.data[k] = self.TAG[k].index(v)
-        self._image_ = None
+            
+            if k is 'body' and v is 'skeleton' and self.data['gender'] is not 'male':
+                raise AttributeError('tried to assign skeleton body to female')
+            
+        self._image = None
         
     def __iter__(self):
         return dict(self.data, **{tag:0 for tag in self.TAG.keys() if tag not in self.data})
     
     @property    
     def image(self):
-        if self._image_ is None:
+        if self._image is None:
             image = self.getSheet('body', self.tag)
             TAG = self.TAG
             for idn in ('eyes', 'nose', 'ears'):
@@ -91,8 +95,8 @@ class LPC():
                     if TAG[idn][self[idn]] != 'none':
                         image.blit(self.getSheet(idn, self.tag), (0, 0))
                         
-            self._image_ = image
-        return self._image_
+            self._image = image
+        return self._image
     
     def getSheet(self, idn, tag):
         path = self.getSheetPath(idn, tag)

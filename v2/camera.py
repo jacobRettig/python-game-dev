@@ -1,34 +1,37 @@
 import pygame
 from vector2d import Vector2D
 
-CELLSIZE = 32
 
 class Camera:
-    def __init__(self, background, pos, zoomScale, world):
+    CELLSIZE = 32
+    
+    def __init__(self, background, world, pos=None, zoom=1):
         self.background = background
         self.world = world
-
-        self.pos = pos
-        self.zoomScale = zoomScale
+        self.pos = Vector2D(pos)
+        self.zoom = zoom
 
     def draw(self, screen):
-        screenSize = Vector2D(screen.get_width(), screen.get_height())
+        screenSize = Vector2D(screen.get_width(), screen.get_height()) / (2 * self.CELLSIZE)
+        pos = self.pos
+        if pos is None:
+            pos = self.world.player.cen
 
-        gameMap = self.world.gameMap
+        gameMap = self.world.map
         entList = self.world.entityList
 
-        mapTopLeft = self.pos / CELLSIZE
-        mapBotRight = (self.pos + screenSize) / CELLSIZE
-
+        mapTopLeft = self.pos - screenSize
+        mapBotRight = self.pos + screenSize
+        
         for tile in gameMap.getTileRange(mapTopLeft, mapBotRight):
             curMapPos = mapTopLeft + tile.tl
 
-            screenPos = curMapPos * CELLSIZE - self.pos
+            screenPos = curMapPos * self.CELLSIZE - self.pos
             screen.blit(tile.image, (screenPos.x, screenPos.y)) 
 
         for entity in entList:
-            pass # Draw each entity
-
+            screen.blit(entity.image, entity.imagePosition)
+        
 
 
 

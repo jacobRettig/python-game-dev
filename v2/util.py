@@ -6,6 +6,7 @@ Created on May 9, 2015
 
 from collections import Iterable
 from functools import reduce
+import random
 
 from vector2d import Vector2D
 
@@ -129,3 +130,50 @@ class Vector2DCustom(Vector2D, Iterable):
             return self.fSet(key)
         
     
+class QuickSort():
+    def quickSortHelper(self, first, last):
+       if first < last:
+    
+           splitpoint = self.partition(first, last)
+    
+           self.quickSortHelper(first, splitpoint - 1)
+           self.quickSortHelper(splitpoint + 1, last)
+    
+    def partition(self, first, last):
+        pivotvalue = self.list[random.randint(first, last)]
+    
+        leftmark = first+1
+        rightmark = last
+    
+        done = False
+        while not done:
+    
+            while leftmark <= rightmark and self.list[leftmark] <= pivotvalue:
+                leftmark = leftmark + 1
+    
+            while self.list[rightmark] >= pivotvalue and rightmark >= leftmark:
+                rightmark = rightmark -1
+    
+            if rightmark < leftmark:
+                done = True
+            else:
+                temp = self.list[leftmark]
+                self.list[leftmark] = self.list[rightmark]
+                self.list[rightmark] = temp
+    
+        temp = self.list[first]
+        self.list[first] = self.list[rightmark]
+        self.list[rightmark] = temp
+        
+        return rightmark
+    
+    def __init__(self, *args):
+        self.list = list(args)
+        self.quickSortHelper(0, len(args) - 1)
+        
+        def __get__(self, inst, type=None):
+            if inst is None:
+                return self
+            else:
+                return self.list
+        self.__get__ = __get__

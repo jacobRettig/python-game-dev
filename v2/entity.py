@@ -10,13 +10,13 @@ from collections import Iterable
 import functools
 import math, util
 from numbers import Number
+import random
 
 from gameObject import GameObject
 from library.v2.spriteSheetLPC import AnimationLPC
 from square import Square
 import square
 from vector2d import Vector2D
-import random
 
 
 def binaryInsertionSort(compareFunction, sortList, *items):
@@ -196,6 +196,11 @@ class Mob(Entity):
         return self.animation.image
     
     @property
+    def imagePosition(self):
+        image = self.image
+        return (self.cx - image.get_width()/2, self.cy - image.get_height())
+    
+    @property
     def action(self):
         if self.act is not -1 and self.acts[self.act].action is not None:
             if self.cycles != self.animation.cycles:
@@ -220,7 +225,7 @@ class Mob(Entity):
     
     def _update(self):
         self.seen = self.sight()
-        for self.seen in self.sight():
+        for seen in self.sight():
             self.onSight(seen)
         
         return Entity._update(self)

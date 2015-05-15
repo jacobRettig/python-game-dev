@@ -6,35 +6,26 @@ Created on Apr 20, 2015
 
 import pygame
 
-from library.v2.player import Player
+from player import Player
 from map import Map as MapClass
 
 
 class World():
-    def __init__(self, screen, mapText, timeSpeed=1):
-        self._screen, self._background = screen, pygame.Surface(screen.get_size())
-        self._map = MapClass(self, mapText)
-        
-        self.background.fill((255, 255, 255))
-        
+    def __init__(self, mapText, timeSpeed=1):
         self.timeSpeed = timeSpeed
         self.time = 0
-        self.entityList = []
+        
         self.player = Player.DEFAULT(self)
+        self.entityList = [self.player]
+        self._map = MapClass(self, mapText)
         
     @property
     def map(self):
-        return self._gameMap
-    @property
-    def screen(self):
-        return self._screen
-    @property
-    def background(self):
-        return self._background
+        return self._map
     
     @property
     def objectList(self):
-        return self.entityList + self.map.TileList
+        return self.entityList + self.map[:]
     
     def update(self):
         self.time += self.timeSpeed * self.player.timeRate()

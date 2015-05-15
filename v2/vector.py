@@ -3,11 +3,11 @@ Created on Apr 20, 2015
 
 @author: jacobrettig
 '''
-from collections import Iterable
+from collections import Mapping, Iterable
 import math, functools
 
 
-class Vector(Iterable):
+class Vector(Mapping):
 #     args = values included inside vector
     def __init__(self, *args):
         self.size = len(args)

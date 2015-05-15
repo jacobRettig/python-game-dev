@@ -6,8 +6,8 @@ Created on Apr 27, 2015
 from collections import Iterable
 from random import Random
 
-from final.v2.vector2d import Vector2D
-from library.v2.square import Square
+from vector2d import Vector2D
+from square import Square
 from tile import Tile
 
 
@@ -128,7 +128,7 @@ class Map():
 class Map():
     def __init__(self, world, text):
         self.world = world
-        self.text = text.splitlines()
+        self.text = text
         self.width = len(text[0])
         self.height = len(text)
         self.data = {}
@@ -138,7 +138,31 @@ class Map():
         return (self.width, self.height)
     
     def __getitem__(self, k):
-        if isinstance(k, tuple) and len(k) == 2:
+        if isinstance(k, slice):
+            start = slice.start
+            if start is None:
+                start = (0, 0)
+            start = Vector2D(start)
+            
+            stop = slice.stop
+            if stop is None:
+                stop = (self.width, self.height)
+            stop = Vector2D(stop)
+            
+            tl = Vector2D(min(start.x, stop.x), min(start.y, stop.y))
+            br = Vector2D(max(start.x, stop.x), max(start.y, stop.y))
+            
+            indexer = tl()
+            results = []
+            while indexer.y < br.y:
+                while indexer.x < br.x:
+                    results.append(self[indexer])
+                    indexer.x += 1
+                indexer.x = tl.x
+                indexer.y += 1
+            return results
+            
+        elif isinstance(k, tuple) and len(k) == 2:
             k = (int(k[0]), int(k[1]))
             if k[0] < 0 and k[1] < 0 and k[0] >= self.width and k[1] >= self.height:
                 if str(k) not in self.data:
@@ -150,31 +174,6 @@ class Map():
     def __setitem__(self, k, v):
         raise AttributeError
     
-    def fillOutTiles(self):
-        for i in range(self.width):
-            for j in range(self.height):
-                self[i, j]
-    
-    @property
-    def tileList(self):
-        if self.empty is not 0:
-            self.fillOutTiles()
-        return self.data.values()
-    
-    def getTileRange(self, topLeft, bottomRight):
-        topLeft = Vector2D(topLeft)
-        bottomRight = Vector2D(bottomRight)
-        
-        results = []
-        i = topLeft.x
-        j = topLeft.y
-        while i <=  bottomRight.x:
-            while j <= bottomRight.y:
-                results.append(self[i, j])
-                j += self[0, 0].side
-            j = topLeft.y
-            i += self[0, 0].side
-        return results
         
     
     

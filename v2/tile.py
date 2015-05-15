@@ -10,9 +10,9 @@ from gameObject import GameObject
 
 def loadTerrain(path, width, height):
     img = pygame.image.load(path)
-    images = []
+    images = [None] * width
     for i in range(width):
-        images[i] = []
+        images[i] = [None] * height
         for j in range(height):
             images[i][j] = img.subsurface((i * img.get_width() / width, j * img.get_height() / height, img.get_width() / width, img.get_height() / height))
     return images

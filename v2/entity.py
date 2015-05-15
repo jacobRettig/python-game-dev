@@ -5,7 +5,6 @@ Created on Apr 20, 2015
 @author: jacobrettig
 '''
 
-import builtins
 from collections import Iterable
 import functools
 import math, util
@@ -13,30 +12,14 @@ from numbers import Number
 import random
 
 from gameObject import GameObject
-from library.v2.spriteSheetLPC import AnimationLPC
+from spriteSheetSimple import SpriteSheet
 from square import Square
 import square
 from vector2d import Vector2D
+import util
 
 
-def binaryInsertionSort(compareFunction, sortList, *items):
-    if len(sortList) == 0 and len(items) != 0:
-        sortList.append(items.pop())
-    count = len(sortList)
-    for item in items:
-        low, high = 0, count
-        while low < high:
-            mid = (low + high) / 2
-            comparison = compareFunction(sortList[mid], item)
-            if comparison == 0:
-                low, high = mid, mid
-            elif comparison < 0:
-                low = mid + 1
-            else:
-                high = mid - 1
-        sortList.insert(low, item)
-        count += 1
-    return sortList
+
 
 
 
@@ -97,11 +80,10 @@ class Entity(GameObject):
     def _update(self):
         if self.isMoving is True:
             self.move(1)
-            def OR(a, b):
-                return a or b
+            
             if functools.reduce((lambda x, y: x is True or y is True),
-                 (self.onCollision(tile) for tile in self.world.map.getTileRange(self.tl, self.br)) +
-                 (self.onCollision(obj) for obj in self.world.entityList if obj in self)):
+                  (self.onCollision(tile) for tile in self.world.map[self.tl : self.br]) +
+                  (self.onCollision(obj) for obj in self.world.entityList if obj in self)):
                 self.move(-1)
         
         return self.hp < 0
@@ -168,14 +150,15 @@ class Mob(Entity):
         self.isMoving = False
         self.isActing = False
         self.act = -1
-        self.acts = []
+        self.acts = util.ScalingList()
         self.blurbs = {
                        'text':[],
                        'current':-1,
                        'time':self.world.time + random.random() * 50
                        }
         
-        self.animation = AnimationLPC(self, spriteSheet)
+        self.animation = SpriteSheet()
+        print(dir(self.animation))
         
         self.visDis = visDis
         self.visVec = visVec
@@ -255,7 +238,7 @@ class Mob(Entity):
         
         sq += cen
         
-        boundingRect = self.world.map.getTileRange(self.tl, self.br)
+        boundingRect = self.world.map[self.tl : self.br]
         for obj in self.world.entityList:
             if obj in sq:
                 boundingRect.append(obj)
@@ -270,9 +253,9 @@ class Mob(Entity):
                 oL = oL.angleSub(sR).angle
                 oR = oR.angleSub(sR).angle
                 if oR >= 0 and oR <= sL:
-                    rangedList = binaryInsertionSort(fn, rangedList, (obj, min(sL, oL), oR))
+                    rangedList = util.binaryInsertionSort(fn, rangedList, (obj, min(sL, oL), oR))
                 elif oL >= 0 and oL <= sL:
-                    rangedList = binaryInsertionSort(fn, rangedList, (obj, oL, max(0, oR)))
+                    rangedList = util.binaryInsertionSort(fn, rangedList, (obj, oL, max(0, oR)))
             except square.InvalidGeometry:
                 seen.append(obj)
                 if obj.isOpaque:

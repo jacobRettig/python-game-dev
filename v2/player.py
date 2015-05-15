@@ -5,8 +5,8 @@ Created on May 13, 2015
 '''
 import pygame
 
-from library.v2.entity import Mob, Entity
-from library.v2.spriteSheetLPC import AnimationLPC
+from entity import Mob, Entity
+from spriteSheetLPC import AnimationLPC
 import action
 
 
@@ -17,8 +17,9 @@ class Player(Mob):
         
     @staticmethod
     def DEFAULT(world):
-        player = Player(world, (1, 1, 5), AnimationLPC(self, hair='plain', shirt='brown', pants='teal', shoes='black'))
+        player = Player(world, (1.5, 1.5, .6), AnimationLPC(world, hair='plain', shirt='brown', pants='teal', shoes='black'))
         player.acts[0] = action.slash
+        return player
     
     def timeRate(self):
         t = self._timeRate

@@ -7,9 +7,10 @@ Created on Apr 20, 2015
 import math
 
 from vector import Vector
+from collections import Iterable
 
 
-class Vector2D(Vector):
+class Vector2D(Vector, Iterable):
     def __init__(self, x=0, y=0):
         Vector.__init__(self, x, y)
     @property

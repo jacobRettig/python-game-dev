@@ -15,7 +15,7 @@ import math, util
 # h = horizontal dilation factor
 # v = vertical dilation factor
 def refPoint(owner, h, v):
-    class RefPoint(Vector2D):
+    class RefPoint(Vector2D, Iterable):
 #         get rid of normal Vector init stuff because RefPoint doesn't save instance variables other than it's local refs
         def __init__(self):
             pass
@@ -47,12 +47,24 @@ def refPoint(owner, h, v):
             else:
                 raise IndexError
         def __setitem__(self, k, v):
-            if k == 0 or k == 'x':
+            if isinstance(k, slice):
+                start = k.start
+                if start is None:
+                    start = 0
+                stop = k.stop
+                if stop is None:
+                    stop = 1
+                step = k.step
+                if step is None:
+                    step = 1
+                for i in range(start, stop, step):
+                    self[i] = v[i]
+            elif k == 0 or k == 'x':
                 self.x = v
             elif k == 1 or k == 'y':
                 self.y = v
             else:
-                raise IndexError
+                raise IndexError('Square: {sq}  key: {k}  value: {v}'.format(sq=self, k=k, v=v))
 
         @property
         def list(self):
@@ -78,10 +90,10 @@ class Square(Iterable):
 #     data = (x, y, side length)
     def __init__(self, data = (0, 0, 0)):
 #         init side length
-        self._side = data[2]
+        self.side = data[2]
         
 #         init primary position reference location
-        self.tl = Vector2D(data[0], data[1])
+        self._tl = Vector2D(data[0], data[1])
         
 #         init all other points relative to top left
         self._tr = refPoint(self, 1, 0)
@@ -91,6 +103,10 @@ class Square(Iterable):
         
         
 #     this prevents overwriting instance variables
+    @util.InstanceGuard('_tl', 'set')
+    def tl(self, value):
+        self.tl.x = value[0]
+        self.tl.y = value[1]
     @util.InstanceGuard('_tr', 'set')
     def tr(self, value): 
         self.tr.x = value[0]
@@ -201,13 +217,6 @@ class Square(Iterable):
     
 #     object behavior methods
 
-    @util.InstanceGuard('_side', 'set')
-    def side(self, value):
-        if value < 0:
-            value = abs(value)
-            self.tl -= value
-        self._side = value
-    
     def __str__(self):
         return "[x:{x}, y:{y}, side length:{side}]".format(x=self.x, y=self.y, side=self.side)
         

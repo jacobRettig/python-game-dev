@@ -57,8 +57,8 @@ class LPC():
         'right hand':('none', 'bow', 'bow_skeleton', 'greatbow', 'recurvebow')
         }
     
-    def __init__(self, master, **kwargs):
-        self.master, self.data, self._image = master, {}, None
+    def __init__(self, **kwargs):
+        self.data, self._image = {}, None
         for key in kwargs.keys():
             self[key] = kwargs[key]
     
@@ -157,7 +157,7 @@ class AnimationLPC():
     def __init__(self, owner, spriteSheet=None, **kwargs):
         self.owner, self.spriteSheet = owner, spriteSheet
         if self.spriteSheet is None:
-            self.spriteSheet = LPC(owner, SpriteSheetMaster())
+            self.spriteSheet = LPC()
         
         self.action = 'none'
         self.speed = 5
@@ -168,32 +168,32 @@ class AnimationLPC():
         for key in kwargs.keys():
             setattr(self, key, kwargs[key])
             
-        @property
-        def image(self):
-            if not self.owner.dx == 0 or not self.owner.dy == 0:
-                self.dx, self.dy = self.owner.dx, self.owner.dy
-            if self.owner.action != self.action:
-                self.action = self.owner.action
-                self.time, self.cycles = self.owner.time, 0
-            time = self.owner.time - self.time
-            
-            self.cycles = int(time // self.speed)
-            index = int((time % self.speed) * self.frames // self.speed)
-            
-            dirc = 0
-            if abs(self.dx) > abs(self.dy):
-                if self.dx > 0:
-                    dirc = 3
-                else:
-                    dirc = 1
-            elif self.dy > 0:
-                dirc = 2
-                
-            if self.action == 'hurt':
-                return self.spriteSheet[(20, index)]
-            
-            return self.spriteSheet[(self.ACTIONS[self.action]*4 + dirc, index)]
+    @property
+    def image(self):
+        if not self.owner.dx == 0 or not self.owner.dy == 0:
+            self.dx, self.dy = self.owner.dx, self.owner.dy
+        if self.owner.action != self.action:
+            self.action = self.owner.action
+            self.time, self.cycles = self.owner.time, 0
+        time = self.owner.time - self.time
         
-        @image.setter
-        def image(self, v):
-            raise AttributeError
+        self.cycles = int(time // self.speed)
+        index = int((time % self.speed) * self.frames // self.speed)
+        
+        dirc = 0
+        if abs(self.dx) > abs(self.dy):
+            if self.dx > 0:
+                dirc = 3
+            else:
+                dirc = 1
+        elif self.dy > 0:
+            dirc = 2
+            
+        if self.action == 'hurt':
+            return self.spriteSheet[(20, index)]
+        
+        return self.spriteSheet[(self.ACTIONS[self.action]*4 + dirc, index)]
+    
+    @image.setter
+    def image(self, v):
+        raise AttributeError

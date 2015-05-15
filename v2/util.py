@@ -7,8 +7,28 @@ Created on May 9, 2015
 from collections import Iterable
 from functools import reduce
 import random
-
 from vector2d import Vector2D
+
+
+def binaryInsertionSort(compareFunction, sortList, *items):
+    if len(sortList) == 0 and len(items) != 0:
+        sortList.append(items.pop())
+    count = len(sortList)
+    for item in items:
+        low, high = 0, count
+        while low < high:
+            mid = (low + high) / 2
+            comparison = compareFunction(sortList[mid], item)
+            if comparison == 0:
+                low, high = mid, mid
+            elif comparison < 0:
+                low = mid + 1
+            else:
+                high = mid - 1
+        sortList.insert(low, item)
+        count += 1
+    return sortList
+
 
 
 class InstanceGuard(object):
@@ -129,51 +149,13 @@ class Vector2DCustom(Vector2D, Iterable):
         else:
             return self.fSet(key)
         
-    
-class QuickSort():
-    def quickSortHelper(self, first, last):
-       if first < last:
-    
-           splitpoint = self.partition(first, last)
-    
-           self.quickSortHelper(first, splitpoint - 1)
-           self.quickSortHelper(splitpoint + 1, last)
-    
-    def partition(self, first, last):
-        pivotvalue = self.list[random.randint(first, last)]
-    
-        leftmark = first+1
-        rightmark = last
-    
-        done = False
-        while not done:
-    
-            while leftmark <= rightmark and self.list[leftmark] <= pivotvalue:
-                leftmark = leftmark + 1
-    
-            while self.list[rightmark] >= pivotvalue and rightmark >= leftmark:
-                rightmark = rightmark -1
-    
-            if rightmark < leftmark:
-                done = True
-            else:
-                temp = self.list[leftmark]
-                self.list[leftmark] = self.list[rightmark]
-                self.list[rightmark] = temp
-    
-        temp = self.list[first]
-        self.list[first] = self.list[rightmark]
-        self.list[rightmark] = temp
         
-        return rightmark
-    
-    def __init__(self, *args):
-        self.list = list(args)
-        self.quickSortHelper(0, len(args) - 1)
+class ScalingList(list):
+    def __setitem__(self, k, v):
+        while k < len(self):
+            self.append(None)
+        if k == len(self):
+            self.append(v)
+        else:
+            list.__setitem__(self, k, v)
         
-        def __get__(self, inst, type=None):
-            if inst is None:
-                return self
-            else:
-                return self.list
-        self.__get__ = __get__

@@ -103,8 +103,10 @@ class SpriteSheetControl():
 
 class SpriteSheet():
 #     by default all values are 0 indexed
-    def __init__(self, masterSpriteSheet, **params):
+    def __init__(self, masterSpriteSheet=None, **params):
         self.MSS = masterSpriteSheet
+        if self.MSS is None:
+            self.MSS = SpriteSheetControl()
         
         self._tag_ = {}
         self._image_ = None

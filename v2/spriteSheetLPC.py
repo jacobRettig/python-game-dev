@@ -73,8 +73,9 @@ class LPC():
         else:
             self.data[k] = self.TAG[k].index(v)
             
-            if k is 'body' and v is 'skeleton' and self.data['gender'] is not 'male':
-                raise AttributeError('tried to assign skeleton body to female')
+            if k is 'body' and v is 'skeleton':
+                if self.data['gender'] is not 'male' or any((self[itm] is not 'none'for itm in ('eyes', 'ears', 'nose'))):  
+                    raise AttributeError('tried to assign skeleton body to female')
             
         self._image = None
         

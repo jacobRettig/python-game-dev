@@ -17,13 +17,15 @@ class Player(Mob):
         
     @staticmethod
     def DEFAULT(world):
-        player = Player(world, (.5, .5, .2), LPC(hair='plain', shirt='brown', pants='teal', shoes='black'))
+        from world import World
+        player = Player(world, (0, 0, 3 * World.SIZE / 6), LPC(hair='plain', shirt='brown', pants='teal', shoes='black'))
         player.acts[0] = action.slash
+        player.speed = 2
         return player
     
     def timeRate(self):
         t = self._timeRate
-        self._timeRate = 0
+#         self._timeRate = 0
         return t
     
     def _update(self):
@@ -36,12 +38,11 @@ class Player(Mob):
         left = pressed[pygame.K_LEFT] is 1
         right = pressed[pygame.K_RIGHT] is 1  
         if (left or right) and not (left and right):
-            print('turning')
             self._timeRate = 1
             if left:
-                self.turn(1)
-            else:
                 self.turn(-1)
+            else:
+                self.turn(1)
         
         Mob._update(self)
           

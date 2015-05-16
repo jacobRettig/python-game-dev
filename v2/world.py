@@ -11,6 +11,8 @@ from map import Map as MapClass
 
 
 class World():
+    SIZE = 64
+    
     def __init__(self, mapText, timeSpeed=1):
         self.timeSpeed = timeSpeed
         self.time = 0

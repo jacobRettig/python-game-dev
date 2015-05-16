@@ -4,11 +4,14 @@ Created on May 13, 2015
 @author: jacobrettig
 '''
 
+from entity import Mob
+
 class Action():
     def __init__(self, action, onStart=None):
         if action is not None and not isinstance(action, str):
             raise TypeError('action = {a}    type = {t}'.format(a=action, t=type(action)))
         self._onStart = onStart
+        self._onCycle = None
         self.action = action
         
     def setOnStart(self, onStart):
@@ -16,7 +19,7 @@ class Action():
         return self
     def onStart(self, owner):
         if self._onStart is not None:
-            return self.onStart(self, owner)
+            return self._onStart(self, owner)
     
     def __call__(self, onStart):
         return Action(self.action, onStart)

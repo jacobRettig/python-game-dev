@@ -19,46 +19,21 @@ class Camera:
     def draw(self, screen):
         if screen.get_width() != screen.get_height():
             raise Exception('Must pass in square screen')
-#         
-#         display.cen += self.world.player.cen + self.pos
-#         display.side = screen.get_width()
-        gameSpace = Square((0, 0, self.world.map.width))
-#         gameSpace.side /= self.CELLSIZE
         
+        display = Square((0, 0, screen.get_width()))
+        display.side /= self.zoom
+        display.cen = self.world.player.cen()
+        display.keepInside(self.world.map)
+        print(self.world.map.br)
         
+        for tile in self.world.map[display.tl : display.br]:
+            screen.blit(tile.image, tile.tl - display.tl)
         
-#         screenSize = Vector2D(screen.get_width(), screen.get_height()) / (2 * self.CELLSIZE)
-#         pos = self.world.player.cen
-#         if self.pos is not None:
-#             pos += self.pos
-# 
-#         gameMap = self.world.map
-#         entList = self.world.entityList
+        for E in self.world.entityList:#(E2 for E2 in self.world.entityList if E2 in gameSpace):
+            pnt = Vector2D(E.cx, E.oy) - (E.image.get_width() / 2, E.image.get_height())
+            
+            screen.blit(E.image, pnt - display.tl)
 
-#         mapTopLeft = self.pos - screenSize
-#         mapBotRight = self.pos + screenSize
-        
-#         tileList = []
-        for tile in self.world.map[:]:
-#             curMapPos = mapTopLeft + tile.tl
-            screen.blit(tile.image, tuple((tile.tl) * 32))
-#             tileList.append(tile)
-#             screenPos = curMapPos * self.CELLSIZE - self.pos
-#             screen.blit(tile.image, (screenPos.x, screenPos.y))
-
-#         fn = (lambda x, y: x.oy - y.oy)
-        
-        for E in (E2 for E2 in self.world.entityList if E2 in gameSpace):
-            image = E.image
-            width, height = image.get_width(), image.get_height()
-            screen.blit(image, E.tl)
-
-#         drawList = util.binaryInsertionSort(fn, drawList, entList)
-#         for obj in drawList:
-#             if isinstance(obj, tile.Tile):
-#                 screen.blit(obj.image, tuple((cmapTopLeft + tile.tl) * self.CELLSIZE - self.pos))
-#             elif isinstance(obj, entity.Entity):
-#             screen.blit(entity.image, entity.imagePosition)
         
 
 

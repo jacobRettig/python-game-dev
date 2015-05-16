@@ -9,7 +9,6 @@ import math
 from vector import Vector
 from collections import Iterable
 
-
 class Vector2D(Vector, Iterable):
     def __init__(self, x=0, y=0):
         Vector.__init__(self, x, y)
@@ -28,6 +27,21 @@ class Vector2D(Vector, Iterable):
     
     def __call__(self):
         return Vector2D(self.x, self.y)
+    
+    def __getitem__(self, k):
+        if k == 'x':
+            k = 0
+        elif k == 'y':
+            k = 1
+        return Vector.__getitem__(self, k)
+    
+    def __setitem__(self, k, v):
+        if k == 'x':
+            k = 0
+        elif k == 'y':
+            k = 1
+        return Vector.__setitem__(self, k, v)
+    
         
     def swap(self):
         return self(self.y, self.x)
@@ -83,3 +97,32 @@ class Vector2D(Vector, Iterable):
         return Vector2D(self.cosAdd(other), self.sinAdd(other))
     def angleSub(self, other):
         return Vector2D(self.cosSub(other), self.sinSub(other))
+    
+    @property
+    def eighthTurn(self):
+        a = self.x > 0
+        b = self.y > 0
+        c = abs(self).x > abs(self).y
+        if a is True:
+            if b is True:
+                if c is True:
+                    return 0
+                else:
+                    return 1
+            else:
+                if c is True:
+                    return 7
+                else:
+                    return 6
+        else:
+            if b is True:
+                if c is True:
+                    return 3
+                else:
+                    return 2
+            else:
+                if c is True:
+                    return 4
+                else:
+                    return 5
+                

@@ -16,7 +16,7 @@ from spriteSheetLPC import AnimationLPC
 from square import Square
 import square
 from vector2d import Vector2D
-import util
+import util, sys
 
 
 
@@ -30,7 +30,7 @@ def deltaInstance(owner):
         if k == 0 or k == 'x':
             return owner.dir.x * owner.speed
         elif k == 1 or k == 'y':
-            return owner.dir.x * owner.speed
+            return owner.dir.y * owner.speed
         else:
             raise IndexError
 
@@ -80,17 +80,18 @@ class Entity(GameObject):
     def _update(self):
         if self.isMoving is True:
             self.move(1)
-            
-            for i in (self.onCollision(tile) for tile in self.world.map[self.tl : self.br]):
-                print(i)
-#                   list((self.onCollision(obj) for obj in self.world.entityList if obj in self)))
-            if functools.reduce((lambda x, y: x is True or y is True),
-                  list((self.onCollision(tile) for tile in self.world.map[self.tl : self.br])) +
-                  list((self.onCollision(obj) for obj in self.world.entityList if obj in self and obj is not self))):
-                print('collision')
-                self.move(-1)
+        self.keepInside(self.world.map)
+        for tile in self.world.map[self.tl : self.br]:
+            self.onCollision(tile)
         
         return self.hp < 0
+    
+    
+    #     return True if movement should be undone
+    def onCollision(self, obstacle):
+        if obstacle.isSolid:
+            self.deCollide(obstacle, self)
+    
     
     @staticmethod
     def normVector(val):
@@ -148,7 +149,7 @@ def visRInstance(owner):
     
     
 class Mob(Entity):
-    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=.3, turnRate=math.pi/16, visDis=6, visVec=(math.sqrt(2),)*2,
+    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=.4, turnRate=math.pi/20, visDis=6, visVec=(math.sqrt(2),)*2,
          hp=20):
         Entity.__init__(self, world, dim, direction, speed, turnRate, hp)
         self.isMoving = False
@@ -206,10 +207,6 @@ class Mob(Entity):
         if self.act is not -1:
             self.acts[self.act].onStart(self)
         
-#     return True if movement should be undone
-    def onCollision(self, obstacle):
-        return obstacle.isSolid
-    
     def _update(self):
         self.seen = self.sight()
         for seen in self.sight():

@@ -33,10 +33,6 @@ def isShiftDown():
 
 
 #Initialize variables
-MASTER_SHEET = spriteSheetSimple.SpriteSheetControl()
-sheet = spriteSheetSimple.SpriteSheet(MASTER_SHEET, gender='female', shoes='black', pants='skirt', hair='bedhead', eyes='green', left_hand='arrow',\
-     right_hand="recurvebow")
-
 txt = None
 with open('testMap.txt', 'r') as file:
     txt = file.readlines()
@@ -56,17 +52,10 @@ def main():
 #         update calls
         
         world.update()
-        
-                
 
-#         draw background
-        screen.blit(background, (0, 0))
         camera.draw(screen)
-#         draw calls
-#         screen.blit(sheet.image, (0, 0))
-#         loop ending
         pygame.display.flip()
-        print(world.player.tl)
+        
         clock.tick(TICK_SPEED)
     
 #Start execution

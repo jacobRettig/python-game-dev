@@ -116,7 +116,7 @@ class Vector(Iterable):
         return self().map((lambda x: +x))
     def __neg__(self):
         return self().map((lambda x: -x))
-        
+    
 #     shift elements to left [0, 1, 2, 3] -> [1, 2, 3, 0]
     def __lshift__(self, o):
         if isinstance(o, int):

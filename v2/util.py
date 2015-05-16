@@ -8,6 +8,7 @@ from collections import Iterable
 from functools import reduce
 import random
 from vector2d import Vector2D
+import pdb
 
 
 def binaryInsertionSort(compareFunction, sortList, *items):
@@ -160,4 +161,11 @@ class ScalingList(list):
             self.append(v)
         else:
             list.__setitem__(self, k, v)
+        
+
+
+class UnimplementedError(Exception):
+    def __init__(self, *args, **kwargs):
+        pdb.Pdb().set_trace()
+        Exception.__init__(self, *args, **kwargs)
         

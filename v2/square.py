@@ -7,6 +7,7 @@ Created on May 9, 2015
 from vector2d import Vector2D
 from collections import Iterable
 import math, util
+import sys
 
     
     
@@ -218,7 +219,10 @@ class Square(Iterable):
 
     def __str__(self):
         return "[x:{x}, y:{y}, side length:{side}]".format(x=self.x, y=self.y, side=self.side)
-        
+    
+    def __repr__(self):
+        return self.__str__()
+    
     def __eq__(self, other):
         if isinstance(other, Square):
            return other.x == self.x and other.y == self.y and other.side == self.side
@@ -267,8 +271,16 @@ class Square(Iterable):
             return self.bl
         elif key == 'cen':
             return self.cen
+        elif key == 'x':
+            return self.x
+        elif key == 'y':
+            return self.y
+        elif key == 'ox':
+            return self.ox
+        elif key == 'oy':
+            return self.oy
         else:
-            raise Exception
+            raise IndexError('key : {}'.format(key))
         
     def __setitem__(self, key, value):
         if key == 0 or key == 'tl':
@@ -281,16 +293,67 @@ class Square(Iterable):
             self.bl = value
         elif key == 'cen':
             self.cen = value
+        elif key == 'x':
+            self.x = value
+        elif key == 'y':
+            self.y = value
+        elif key == 'ox':
+            self.ox = value
+        elif key == 'oy':
+            self.oy = value
         else:
-            raise Exception
+            raise IndexError('key : {}'.format(key))
         
 #     check if point or Square is inside of square (coordinate wise)
     def __contains__(self, value):
         if isinstance(value, Square):
-            return value.br in Square((self.x, self.y, self.side + value.side))
+            return self.x < value.ox < self.ox + value.side and self.y < value.oy < self.oy + value.side
 #         determine if point is inside square exclusive
-        return value[0] > self.x and value[0] < self.ox and value[1] > self.y and value[1] < self.oy
+        return value.x < value[0] < self.ox and  self.y < value[1] < self.oy
 
 #     clone self
     def __call__(self):
         return Square((self.x, self.y, self.side))
+    
+    
+    def deCollide(self, other, target=None):
+        if isinstance(other, Square) is False:
+            raise TypeError('Square.deCollide parameter is not instance of Square type={type}   instance={inst}'
+                            .format(type=type(other), inst=other))
+        elif self not in other:
+            return self
+        
+        if target is None:
+            target = self()
+        
+        x = (self.x, other.x)
+        y = (self.y, other.y)
+        ox = (self.ox, other.ox)
+        oy = (self.oy, other.oy)
+        diff = Vector2D(max(x), max(y)) - Vector2D(min(ox), min(oy))
+        if abs(diff.x) < abs(diff.y):
+            diff.y = 0
+        else:
+            diff.x = 0
+        if self.cx > other.cx:
+            diff.x = -diff.x
+        if self.cy > other.cy:
+            diff.y = -diff.y
+            
+        target += diff
+        if target in other:
+            target.deCollide(other, target)
+        
+        return target
+    
+    def keepInside(self, other):
+        self.tl = (max(self.x, other.x), max(self.y, other.y))
+        self.br = (min(self.ox, other.ox), min(self.oy, other.oy))
+        
+        return self
+        
+a = Square((19, 19, 5))
+b = Square((0, 0, 20))
+a.keepInside(b)
+
+print(a)

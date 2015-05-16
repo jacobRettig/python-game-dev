@@ -11,6 +11,7 @@ class ImageLPC(pygame.Surface):
         img = pygame.image.load(path)
         pygame.Surface.__init__(self, (img.get_width(), img.get_height()))
         self.blit(img, (0, 0))
+        self.set_colorkey(self.get_at((0, 0)))
         
     def __getitem__(self, k):
         return self.subsurface((k[1] * self.get_width() / 13, k[0] * self.get_height() / 21, self.get_width() / 13, self.get_height() / 21))
@@ -108,7 +109,6 @@ class LPC():
     def getSheetPath(self, idn, tag):
         TAG = LPC.TAG
 
-        print('idn:{}'.format(self['body']))
         if self[idn] == 'none':
             return self.EMPTY
         

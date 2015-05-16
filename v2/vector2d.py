@@ -53,7 +53,7 @@ class Vector2D(Vector, Iterable):
         return self[0] * self[1]
     @property
     def hypot(self):
-        return (self ** 2).sum
+        return (self.dat[0] ** 2 + self.dat[1] ** 2)
     @property
     def length(self):
         return math.sqrt(self.hypot)

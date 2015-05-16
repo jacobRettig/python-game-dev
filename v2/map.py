@@ -24,25 +24,17 @@ class Map(Square):
         Square.__init__(self, (0, 0, self.world.SIZE * (min(reduce(min, list(map(len, text))), len(text)) - 1)))
         self.data = {}
         self.empty = self.side ** 2
-        self._solidTiles = tuple()
-        self._opaqueTiles = tuple()
+        self.solidTiles = set()
+        self.opaqueTiles = set()
         for tile in self[:]:
             if tile.isSolid:
-                self._solidTiles += (tile, )
+                self.solidTiles.add(tile)
             if tile.isOpaque:
-                self._opaqueTiles += (tile, )
+                self.opaqueTiles.add(tile)
         
     @property
     def unloadedCount(self):
         return self.empty
-    
-    @property
-    def solidTiles(self):
-        return self._solidTiles
-    
-    @property
-    def opaqueTiles(self):
-        return self._opaqueTiles
     
     def __len__(self):
         return (self.side, self.side)
@@ -63,10 +55,10 @@ class Map(Square):
             bry = max(start[1], stop[1]) + self.world.SIZE
             x = tlx
             y = tly
-            results = tuple()
+            results = set()
             while y < bry:
                 while x < brx:
-                    results += (self[(x, y)], )
+                    results.add(self[(x, y)])
                     x += self.world.SIZE
                 x = tlx
                 y += self.world.SIZE

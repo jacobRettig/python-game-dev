@@ -12,7 +12,6 @@ class ImageLPC(pygame.Surface):
         pygame.Surface.__init__(self, (img.get_width(), img.get_height()))
         self.blit(img, (0, 0))
         self.set_colorkey(self.get_at((0, 0)))
-        
     def __getitem__(self, k):
         return self.subsurface((k[1] * self.get_width() / 13, k[0] * self.get_height() / 21, self.get_width() / 13, self.get_height() / 21))
     
@@ -38,41 +37,45 @@ class SpriteSheetMaster():
                 
 class LPC():
     TAG = {
-        'gender':('male', 'female'),
-        'body':('light', 'dark', 'dark2', 'darkelf', 'darkelf2', 'tanned', 'tanned2', 'skeleton'),
-        'eyes':('blue', 'brown', 'gray', 'green', 'orange', 'purple', 'red', 'yellow', 'none'),
-        'nose':('big', 'button', 'straight', 'none'),
-        'ears':('big', 'elven', 'none'),
-        'hair color':('black', 'blonde', 'blonde2', 'blue', 'blue2', 'brunette', 'brunette2', 'dark-blonde', 'gold',
+        'gender':frozenset(('male', 'female')),
+        'body':frozenset(('light', 'dark', 'dark2', 'darkelf', 'darkelf2', 'tanned', 'tanned2', 'skeleton')),
+        'eyes':frozenset(('blue', 'brown', 'gray', 'green', 'orange', 'purple', 'red', 'yellow', 'none')),
+        'nose':frozenset(('big', 'button', 'straight', 'none')),
+        'ears':frozenset(('big', 'elven', 'none')),
+        'hair color':frozenset(('black', 'blonde', 'blonde2', 'blue', 'blue2', 'brunette', 'brunette2', 'dark-blonde', 'gold',
             'gray', 'gray2', 'light-blonde', 'light-blonde2', 'pink', 'pink2', 'purple', 'raven', 'raven2', 'redhead',
-            'redhead2', 'ruby-red', 'white-blonde', 'white-blonde2', 'white-cyan', 'white'),
-        'hair':('none', 'bangs', 'bangslong', 'bangslong2', 'bangsshort', 'bedhead', 'bunches', 'jewfro', 'long',
+            'redhead2', 'ruby-red', 'white-blonde', 'white-blonde2', 'white-cyan', 'white')),
+        'hair':frozenset(('none', 'bangs', 'bangslong', 'bangslong2', 'bangsshort', 'bedhead', 'bunches', 'jewfro', 'long',
             'long', 'longhawk', 'longknot', 'loose', 'messy1', 'messy2', 'mohawk', 'page', 'page2', 'parted', 'pixie',
             'plain', 'poneytail', 'poneytail2', 'princess', 'shorthawk', 'shortknot', 'shoulderl', 'shoulderr', 'swoop',
-            'unkempt', 'xlong', 'xlongknot'),
-        'beard':('none', 'bigstache', 'fiveoclock', 'frenchstache', 'mustache'),
-        'shirt':('none', 'brown', 'maroon', 'teal', 'white'),
-        'pants':('none', 'magenta', 'red', 'teal', 'white', 'skirt'),
-        'shoes':('none', 'black', 'brown', 'maroon'),
-        'left hand':('none', 'arrow', 'arrow_skeleton'),
-        'right hand':('none', 'bow', 'bow_skeleton', 'greatbow', 'recurvebow')
+            'unkempt', 'xlong', 'xlongknot')),
+        'beard':frozenset(('none', 'bigstache', 'fiveoclock', 'frenchstache', 'mustache')),
+        'shirt':frozenset(('none', 'brown', 'maroon', 'teal', 'white')),
+        'pants':frozenset(('none', 'magenta', 'red', 'teal', 'white', 'skirt')),
+        'shoes':frozenset(('none', 'black', 'brown', 'maroon')),
+        'left hand':frozenset(('none', 'arrow', 'arrow_skeleton')),
+        'right hand':frozenset(('none', 'bow', 'bow_skeleton', 'greatbow', 'recurvebow'))
         }
     
     def __init__(self, **kwargs):
-        self.data, self._image, self.sheets = {}, None, {}
+        self.data, self._image, self.sheets = {'gender':'male', 'body':'light', 'eyes':'blue', 'nose':'big', 'ears':'big',
+                                                         'hair color':'black'}, None, {}
         for key in kwargs.keys():
             self[key] = kwargs[key]
     
     def __getitem__(self, k):
         if k in self.data.keys():
-            return self.TAG[k][self.data[k]]
+            return self.data[k]
         else:
-            return self.TAG[k][0]
+            return 'none'
     def __setitem__(self, k, v):
-        if v is 0:
+        if v is None:
             del(self.data[k])
         else:
-            self.data[k] = self.TAG[k].index(v)
+            if not v in self.TAG[k]:
+                raise IndexError('SpriteSheetLPC assignment error value : {value} is not in key : {key}  available options are {options}'
+                                 .format(value=v, key = k, options=self.TAG[k]))
+            self.data[k] = v
             
             if k is 'body' and v is 'skeleton':
                 for itm in ('eyes', 'ears', 'nose'):
@@ -84,6 +87,10 @@ class LPC():
     def __iter__(self):
         return dict(self.data, **{tag:0 for tag in self.TAG.keys() if tag not in self.data})
     
+    layer1 = frozenset(('eyes', 'nose', 'ears'))
+    layer2 = frozenset(('shirt', 'pants', 'shoes'))
+    layer3 = frozenset(('beard', 'hair'))
+    layer4 = frozenset(('left hand', 'right hand'))
     @property    
     def image(self):
         if self._image is None:
@@ -93,8 +100,7 @@ class LPC():
                 if self[idn] != 'none':
                     image.blit(self.getSheet(idn, self.data), (0, 0))
             
-            for part in (('eyes', 'nose', 'ears'), ('shirt', 'pants', 'shoes'), ('beard', 'hair'),
-                 ('left hand', 'right hand')):
+            for part in (self.layer1, self.layer2, self.layer3, self.layer4):
                 for idn in part:
                     if self[idn] != 'none':
                         image.blit(self.getSheet(idn, self.data), (0, 0))

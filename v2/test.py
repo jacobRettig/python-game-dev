@@ -31,9 +31,6 @@ del HEIGHT
 def isShiftDown():
     return pygame.key.get_pressed()[pygame.K_LSHIFT] or pygame.key.get_pressed()[pygame.K_RSHIFT]
 
-import cProfile
-profile = cProfile.Profile()
-profile.enable()
 
 #Initialize variables
 txt = None
@@ -42,11 +39,16 @@ with open('testMap.txt', 'r') as file:
 world = World(txt)
 
 
-for i in range(20):
+for i in range(4):
     world.addEnemy()
     
     
 camera = Camera(background, world)
+
+import cProfile
+profile = cProfile.Profile()
+profile.enable()
+
 
 #main infinite loop
 def main():
@@ -68,7 +70,7 @@ def main():
     clock.tick(TICK_SPEED)
     
 #Start execution
-for i in range(30):
+for i in range(100):
     main()
 
 profile.disable()

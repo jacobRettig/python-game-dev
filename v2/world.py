@@ -19,7 +19,7 @@ class World():
         self.time = 0
         
         self.player = Player.DEFAULT(self)
-        self.entityList = [self.player]
+        self.entityList = set((self.player, ))
         self._map = MapClass(self, mapText)
         
         from spriteSheetLPC import LPC
@@ -29,13 +29,8 @@ class World():
     def map(self):
         return self._map
     
-    @property
-    def objectList(self):
-        return self.entityList + self.map[:]
-    
     def update(self):
         self.time += self.timeSpeed * self.player.timeRate()
-        
         for entity in self.entityList:
             if entity.update():
                 self.entityList.remove(entity)
@@ -52,5 +47,5 @@ class World():
                 if E in tile:
                     continue
             break
-        self.entityList.append(E)
+        self.entityList.add(E)
         

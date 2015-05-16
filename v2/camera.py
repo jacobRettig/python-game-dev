@@ -24,14 +24,18 @@ class Camera:
         display.side /= self.zoom
         display.cen = self.world.player.cen()
         display.keepInside(self.world.map)
-        
-        for tile in self.world.map[display.tl : display.br]:
-            if tile in display:
-                screen.blit(tile.image, tile.tl - display.tl)
+
+        self.drawMap(screen, display)
         
         for E in self.world.entityList:#(E2 for E2 in self.world.entityList if E2 in gameSpace):
             if E in display:
                 screen.blit(E.image, E.imagePosition)
+                
+    def drawMap(self, screen, display):
+        for tile in self.world.map[display.tl : display.br]:
+            if tile in display:
+                screen.blit(tile.image, tile.tl - display.tl)
+        
 
         
 

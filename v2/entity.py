@@ -220,10 +220,11 @@ class Mob(Entity):
 
 #     ROUGH as in very rough first version of the vision method 
     def sight(self):
-        seen = tuple()
+        seen = set()
+        cen = self.cen()
         for E in self.world.entityList:
-            if self is not E and (self.cen - E.cen).hypot <= 5**2:
-                seen += (E, )
+            if self is not E and (cen - E.cen).hypot <= 25:
+                seen.add(E)
         return seen
 #         x = (0, self.visL.x, self.visR.x)
 #         y = (0, self.visL.y, self.visR.y)

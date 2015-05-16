@@ -10,7 +10,7 @@ class GameObject(Square):
     def __init__(self, world, sq, isOpque=False, isSolid=False):
         Square.__init__(self, sq)
         self.world = world
-        self.isOpque = isOpque
+        self.isOpaque = isOpque
         self.isSolid = isSolid
         
     @property

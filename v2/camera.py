@@ -19,12 +19,11 @@ class Camera:
     def draw(self, screen):
         if screen.get_width() != screen.get_height():
             raise Exception('Must pass in square screen')
-        
-        display = Square()
-        display.cen += self.world.player.cen + self.pos
-        display.side = screen.get_width()
-        gameSpace = display()
-        gameSpace.side /= self.CELLSIZE
+#         
+#         display.cen += self.world.player.cen + self.pos
+#         display.side = screen.get_width()
+        gameSpace = Square((0, 0, self.world.map.width))
+#         gameSpace.side /= self.CELLSIZE
         
         
         
@@ -40,10 +39,9 @@ class Camera:
 #         mapBotRight = self.pos + screenSize
         
 #         tileList = []
-        
-        for tile in self.world.map[gameSpace.tl: gameSpace.br + 1]:
+        for tile in self.world.map[:]:
 #             curMapPos = mapTopLeft + tile.tl
-            screen.blit(tile.image, tuple((tile.tl - gameSpace.tl) * 32))
+            screen.blit(tile.image, tuple((tile.tl) * 32))
 #             tileList.append(tile)
 #             screenPos = curMapPos * self.CELLSIZE - self.pos
 #             screen.blit(tile.image, (screenPos.x, screenPos.y))
@@ -53,9 +51,7 @@ class Camera:
         for E in (E2 for E2 in self.world.entityList if E2 in gameSpace):
             image = E.image
             width, height = image.get_width(), image.get_height()
-            t = tuple((E.tl - gameSpace.tl) * 32 - (width/2, height))
-            print('t:{}'.format(t))
-            screen.blit(image, t)
+            screen.blit(image, E.tl)
 
 #         drawList = util.binaryInsertionSort(fn, drawList, entList)
 #         for obj in drawList:

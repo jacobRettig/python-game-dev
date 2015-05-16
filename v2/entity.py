@@ -12,7 +12,7 @@ from numbers import Number
 import random
 
 from gameObject import GameObject
-from spriteSheetSimple import SpriteSheet
+from spriteSheetLPC import AnimationLPC
 from square import Square
 import square
 from vector2d import Vector2D
@@ -37,7 +37,7 @@ def deltaInstance(owner):
     return delta
 
 class Entity(GameObject):
-    def __init__(self, world, dim, direction=(1,0), speed=1, turnRate=math.pi/16, hp=20):
+    def __init__(self, world, dim, direction=(1,0), speed=.2, turnRate=math.pi/16, hp=20):
         GameObject.__init__(self, world, dim)
         self.dir = direction
         self.turnRate = turnRate
@@ -81,9 +81,13 @@ class Entity(GameObject):
         if self.isMoving is True:
             self.move(1)
             
+            for i in (self.onCollision(tile) for tile in self.world.map[self.tl : self.br]):
+                print(i)
+#                   list((self.onCollision(obj) for obj in self.world.entityList if obj in self)))
             if functools.reduce((lambda x, y: x is True or y is True),
-                  (self.onCollision(tile) for tile in self.world.map[self.tl : self.br]) +
-                  (self.onCollision(obj) for obj in self.world.entityList if obj in self)):
+                  list((self.onCollision(tile) for tile in self.world.map[self.tl : self.br])) +
+                  list((self.onCollision(obj) for obj in self.world.entityList if obj in self and obj is not self))):
+                print('collision')
                 self.move(-1)
         
         return self.hp < 0
@@ -144,7 +148,7 @@ def visRInstance(owner):
     
     
 class Mob(Entity):
-    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=5, turnRate=math.pi/16, visDis=6, visVec=(math.sqrt(2),)*2,
+    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=.3, turnRate=math.pi/16, visDis=6, visVec=(math.sqrt(2),)*2,
          hp=20):
         Entity.__init__(self, world, dim, direction, speed, turnRate, hp)
         self.isMoving = False
@@ -157,7 +161,7 @@ class Mob(Entity):
                        'time':self.world.time + random.random() * 50
                        }
         
-        self.animation = SpriteSheet()
+        self.animation = AnimationLPC(self, spriteSheet)
         print(dir(self.animation))
         
         self.visDis = visDis

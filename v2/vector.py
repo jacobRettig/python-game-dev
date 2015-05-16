@@ -7,7 +7,7 @@ from collections import Mapping, Iterable
 import math, functools
 
 
-class Vector(Mapping):
+class Vector(Iterable):
 #     args = values included inside vector
     def __init__(self, *args):
         self.size = len(args)

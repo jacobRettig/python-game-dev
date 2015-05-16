@@ -58,7 +58,7 @@ class LPC():
         }
     
     def __init__(self, **kwargs):
-        self.data, self._image = {}, None
+        self.data, self._image, self.sheets = {}, None, {}
         for key in kwargs.keys():
             self[key] = kwargs[key]
     
@@ -85,16 +85,16 @@ class LPC():
     @property    
     def image(self):
         if self._image is None:
-            image = self.getSheet('body', self.tag)
+            image = self.getSheet('body', self.data)
             TAG = self.TAG
             for idn in ('eyes', 'nose', 'ears'):
-                image.blit(self.getSheet(idn, self.tag), (0, 0))
+                image.blit(self.getSheet(idn, self.data), (0, 0))
             
             for part in (('eyes', 'nose', 'ears'), ('shirt', 'pants', 'shoes'), ('beard', 'hair'),
                  ('left hand', 'right hand')):
                 for idn in part:
-                    if TAG[idn][self[idn]] != 'none':
-                        image.blit(self.getSheet(idn, self.tag), (0, 0))
+                    if self[idn] != 'none':
+                        image.blit(self.getSheet(idn, self.data), (0, 0))
                         
             self._image = image
         return self._image
@@ -102,17 +102,18 @@ class LPC():
     def getSheet(self, idn, tag):
         path = self.getSheetPath(idn, tag)
         if not (path in self.sheets):
-            self.sheets[path] = pygame.image.load(path + '.png')
+            self.sheets[path] = ImageLPC(path + '.png')
         return self.sheets[path]
     
     def getSheetPath(self, idn, tag):
         TAG = LPC.TAG
 
-        if TAG[idn][tag[idn]] == 'none':
+        print('idn:{}'.format(self['body']))
+        if self[idn] == 'none':
             return self.EMPTY
         
         path = 'Universal-LPC-spritesheetTmp/'
-        gender = TAG['gender'][tag['gender']]
+        gender = self['gender']
         if idn in ('gender', 'hair color') or not (idn in TAG.keys()):
             raise AttributeError
         elif idn in ('body', 'eyes', 'nose', 'ears'):
@@ -120,39 +121,39 @@ class LPC():
             
             if idn != 'body':
                 path += idn + '/'
-            path += TAG[idn][tag[idn]]
+            path += self[idn]
             if idn in ('nose' 'ears'):
-                path += idn + "_" + TAG['body'][tag['body']]
+                path += idn + "_" + self['body']
         elif idn in ('hair', 'beard'):
             if idn == 'hair':
                 path += 'hair/'
             else:
                 path += 'facial/'
-            path += gender + '/' + TAG[idn][tag[idn]] + '/'
-            path += TAG['hair color'][tag['hair color']]
+            path += gender + '/' + self[idn] + '/'
+            path += self['hair color']
         elif idn == 'pants':
             path += 'legs/'
-            if TAG['pants'][tag['pants']] == 'skirt':
+            if self['pants'] == 'skirt':
                 path += 'skirt/' + gender + '/robe_skirt_' + gender
                 if gender == 'female':
                     path += '_incomplete'
             else:
-                path += 'pants/' + gender + '/' + TAG['pants'][tag['pants']] + '_pants_' + gender 
+                path += 'pants/' + gender + '/' + self['pants'] + '_pants_' + gender 
         elif idn == 'shirt':
             path += 'torso/shirts/'
             if gender == 'male':
-                path += 'longsleeve/male/' + TAG['shirt'][tag['shirt']] + '_longsleeve'
+                path += 'longsleeve/male/' + self['shirt'] + '_longsleeve'
             else:
-                path += 'sleeveless/female/' + TAG['shirt'][tag['shirt']] + '_sleeveless'
+                path += 'sleeveless/female/' + self['shirt'] + '_sleeveless'
         elif idn == 'shoes':
-            path += 'feet/shoes/' + gender + "/" + TAG['shoes'][tag['shoes']] + '_shoes_' + gender
+            path += 'feet/shoes/' + gender + "/" + self['shoes'] + '_shoes_' + gender
         elif idn in ('left hand', 'right hand'):
-            path += 'weapons/' + idn + '/either/' + TAG[idn][tag[idn]]
+            path += 'weapons/' + idn + '/either/' + self[idn]
                 
         return path
 
 class AnimationLPC():
-    ACTIONS = {'cast':3, 'thrust':0, 'walk':2, 'slash':1, 'shoot':4}
+    ACTIONS = {'cast':3, 'thrust':0, 'walk':2, 'slash':1, 'shoot':4, 'none':2}
     
     def __init__(self, owner, spriteSheet=None, **kwargs):
         self.owner, self.spriteSheet = owner, spriteSheet
@@ -161,7 +162,7 @@ class AnimationLPC():
         
         self.action = 'none'
         self.speed = 5
-        self.dx, self.dy = 1, 0
+        self.dirx, self.diry = 1, 0
         self.cycles = 0
         self.time = self.owner.time
         
@@ -170,8 +171,7 @@ class AnimationLPC():
             
     @property
     def image(self):
-        if not self.owner.dx == 0 or not self.owner.dy == 0:
-            self.dx, self.dy = self.owner.dx, self.owner.dy
+        self.dirx, self.diry = self.owner.dir.x, self.owner.dir.y
         if self.owner.action != self.action:
             self.action = self.owner.action
             self.time, self.cycles = self.owner.time, 0
@@ -181,19 +181,38 @@ class AnimationLPC():
         index = int((time % self.speed) * self.frames // self.speed)
         
         dirc = 0
-        if abs(self.dx) > abs(self.dy):
-            if self.dx > 0:
+        if abs(self.dirx) > abs(self.diry):
+            if self.dirx > 0:
                 dirc = 3
             else:
                 dirc = 1
-        elif self.dy > 0:
+        elif self.diry > 0:
             dirc = 2
             
         if self.action == 'hurt':
-            return self.spriteSheet[(20, index)]
+            return self.spriteSheet.image[20, index]
         
-        return self.spriteSheet[(self.ACTIONS[self.action]*4 + dirc, index)]
+        return self.spriteSheet.image[self.ACTIONS[self.action]*4 + dirc, index]
     
     @image.setter
     def image(self, v):
         raise AttributeError
+    
+    @property
+    def frames(self):
+        if self.action is 'none':
+            return 1
+        elif self.action is 'cast':
+            return 7
+        elif self.action is 'thrust':
+            return 8
+        elif self.action is 'walk':
+            return 9
+        elif self.action is 'slash':
+            return 6
+        elif self.action is 'shoot':
+            return 13
+        elif self.action is 'hurt':
+            return 6
+        else:
+            raise AttributeError('action not found action: {}'.format(self.action))

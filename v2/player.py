@@ -6,7 +6,7 @@ Created on May 13, 2015
 import pygame
 
 from entity import Mob, Entity
-from spriteSheetLPC import AnimationLPC
+from spriteSheetLPC import LPC
 import action
 
 
@@ -17,7 +17,7 @@ class Player(Mob):
         
     @staticmethod
     def DEFAULT(world):
-        player = Player(world, (1.5, 1.5, .6), AnimationLPC(world, hair='plain', shirt='brown', pants='teal', shoes='black'))
+        player = Player(world, (.5, .5, .2), LPC(hair='plain', shirt='brown', pants='teal', shoes='black'))
         player.acts[0] = action.slash
         return player
     
@@ -27,22 +27,25 @@ class Player(Mob):
         return t
     
     def _update(self):
+        
         pressed = pygame.key.get_pressed()
         
-        self.isMoving = pressed[pygame.K_UP]
-        if self.isMoving:
+        self.isMoving = pressed[pygame.K_UP] is 1
+        if self.isMoving is 1:
             self._timeRate = 1
-        
-        if pressed[pygame.K_LEFT] ^ pressed[pygame.K_RIGHT]:
+        left = pressed[pygame.K_LEFT] is 1
+        right = pressed[pygame.K_RIGHT] is 1  
+        if (left or right) and not (left and right):
+            print('turning')
             self._timeRate = 1
-            if pressed[pygame.K_LEFT]:
+            if left:
                 self.turn(1)
             else:
                 self.turn(-1)
         
         Mob._update(self)
           
-        if pressed[pygame.K_SPACE] and self.act is -1:
+        if pressed[pygame.K_SPACE] is 1 and self.act is -1:
             self.action = 0
         
         return Entity._update(self)

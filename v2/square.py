@@ -157,7 +157,6 @@ class Square(Iterable):
     def perimeter(self, newPerimeter):
         self.side = newPerimeter / 4
         
-    @property
     def normalProjection(self, point):
         x, y = 0, 0
         
@@ -288,8 +287,7 @@ class Square(Iterable):
 #     check if point or Square is inside of square (coordinate wise)
     def __contains__(self, value):
         if isinstance(value, Square):
-#             check if primary point or opposite point is in other square (for both squares)
-            return value.tl in self or value.br in self or self.tl in value or self.br in value
+            return value.br in Square((self.x, self.y, self.side + value.side))
 #         determine if point is inside square exclusive
         return value[0] > self.x and value[0] < self.ox and value[1] > self.y and value[1] < self.oy
 

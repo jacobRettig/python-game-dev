@@ -11,7 +11,7 @@ import pygame
 class SpriteSheetControl():
     TAG = {
         'gender':('male', 'female'),
-        'body':('light', 'dark', 'dark2', 'darkelf', 'darkelf2', 'tanned', 'tanned2'),
+        'body':('light', 'dark', 'dark2', 'darkelf', 'darkelf2', 'tanned', 'tanned2', 'skeleton'),
         'eyes':('blue', 'brown', 'gray', 'green', 'orange', 'purple', 'red', 'yellow'),
         'nose':('big', 'button', 'straight'),
         'ears':('big', 'elven'),

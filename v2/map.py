@@ -9,6 +9,7 @@ from random import Random
 from vector2d import Vector2D
 from square import Square
 from tile import Tile
+from numbers import Number
 
 
 rand = Random()
@@ -139,15 +140,15 @@ class Map():
     
     def __getitem__(self, k):
         if isinstance(k, slice):
-            start = slice.start
-            if start is None:
-                start = (0, 0)
-            start = Vector2D(start)
+            start = k.start
+            if start is None or isinstance(start, Number):
+                start = (0.5, 0.5)
+            start = Vector2D(start[0], start[1])
             
-            stop = slice.stop
-            if stop is None:
-                stop = (self.width, self.height)
-            stop = Vector2D(stop)
+            stop = k.stop
+            if stop == None or isinstance(stop, Number):
+                stop = (self.width - 1, self.height - 1)
+            stop = Vector2D(stop[0], stop[1])
             
             tl = Vector2D(min(start.x, stop.x), min(start.y, stop.y))
             br = Vector2D(max(start.x, stop.x), max(start.y, stop.y))
@@ -162,14 +163,14 @@ class Map():
                 indexer.y += 1
             return results
             
-        elif isinstance(k, tuple) and len(k) == 2:
-            k = (int(k[0]), int(k[1]))
-            if k[0] < 0 and k[1] < 0 and k[0] >= self.width and k[1] >= self.height:
+        elif (isinstance(k, Iterable) or isinstance(k, tuple)) and len(k) == 2:
+            k = (max(min(int(k[0]), self.width - 1), 0), max(min(int(k[1]), self.height - 1), 0))
+            if k[0] >= 0 and k[1] >= 0 and k[0] < self.width and k[1] < self.height:
                 if str(k) not in self.data:
                     self.data[str(k)] = Tile(self.world, self.text[k[1]][k[0]], k[0], k[1])
                     self.empty -= 1
                 return self.data[str(k)]
-        raise IndexError(k)
+        raise IndexError(k, type(k))
     
     def __setitem__(self, k, v):
         raise AttributeError

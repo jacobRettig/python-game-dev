@@ -11,6 +11,8 @@ from vector2d import Vector2D
 
 
 def binaryInsertionSort(compareFunction, sortList, *items):
+    sortList = list(sortList)
+    items = list(items)
     if len(sortList) == 0 and len(items) != 0:
         sortList.append(items.pop())
     count = len(sortList)

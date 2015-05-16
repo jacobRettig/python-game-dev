@@ -55,7 +55,7 @@ def main():
         
 #         update calls
         
-        
+        world.update()
         
                 
 
@@ -66,7 +66,7 @@ def main():
 #         screen.blit(sheet.image, (0, 0))
 #         loop ending
         pygame.display.flip()
-        print('drawn')
+        print(world.player.tl)
         clock.tick(TICK_SPEED)
     
 #Start execution

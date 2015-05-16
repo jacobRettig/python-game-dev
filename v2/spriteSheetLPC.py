@@ -40,9 +40,9 @@ class LPC():
     TAG = {
         'gender':('male', 'female'),
         'body':('light', 'dark', 'dark2', 'darkelf', 'darkelf2', 'tanned', 'tanned2', 'skeleton'),
-        'eyes':('blue', 'brown', 'gray', 'green', 'orange', 'purple', 'red', 'yellow'),
-        'nose':('big', 'button', 'straight'),
-        'ears':('big', 'elven'),
+        'eyes':('blue', 'brown', 'gray', 'green', 'orange', 'purple', 'red', 'yellow', 'none'),
+        'nose':('big', 'button', 'straight', 'none'),
+        'ears':('big', 'elven', 'none'),
         'hair color':('black', 'blonde', 'blonde2', 'blue', 'blue2', 'brunette', 'brunette2', 'dark-blonde', 'gold',
             'gray', 'gray2', 'light-blonde', 'light-blonde2', 'pink', 'pink2', 'purple', 'raven', 'raven2', 'redhead',
             'redhead2', 'ruby-red', 'white-blonde', 'white-blonde2', 'white-cyan', 'white'),
@@ -75,8 +75,9 @@ class LPC():
             self.data[k] = self.TAG[k].index(v)
             
             if k is 'body' and v is 'skeleton':
-                if self.data['gender'] is not 'male' or any((self[itm] is not 'none'for itm in ('eyes', 'ears', 'nose'))):  
-                    raise AttributeError('tried to assign skeleton body to female')
+                for itm in ('eyes', 'ears', 'nose'):
+                    self[itm] = 'none'
+                self['gender'] = 'male'
             
         self._image = None
         
@@ -89,7 +90,8 @@ class LPC():
             image = self.getSheet('body', self.data)
             TAG = self.TAG
             for idn in ('eyes', 'nose', 'ears'):
-                image.blit(self.getSheet(idn, self.data), (0, 0))
+                if self[idn] != 'none':
+                    image.blit(self.getSheet(idn, self.data), (0, 0))
             
             for part in (('eyes', 'nose', 'ears'), ('shirt', 'pants', 'shoes'), ('beard', 'hair'),
                  ('left hand', 'right hand')):
@@ -110,7 +112,7 @@ class LPC():
         TAG = LPC.TAG
 
         if self[idn] == 'none':
-            return self.EMPTY
+            raise TypeError('tag : {tag}  is none'.format(tag=idn))
         
         path = 'Universal-LPC-spritesheetTmp/'
         gender = self['gender']

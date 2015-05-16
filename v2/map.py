@@ -24,10 +24,25 @@ class Map(Square):
         Square.__init__(self, (0, 0, self.world.SIZE * (min(reduce(min, list(map(len, text))), len(text)) - 1)))
         self.data = {}
         self.empty = self.side ** 2
+        self._solidTiles = tuple()
+        self._opaqueTiles = tuple()
+        for tile in self[:]:
+            if tile.isSolid:
+                self._solidTiles += (tile, )
+            if tile.isOpaque:
+                self._opaqueTiles += (tile, )
         
     @property
     def unloadedCount(self):
         return self.empty
+    
+    @property
+    def solidTiles(self):
+        return self._solidTiles
+    
+    @property
+    def opaqueTiles(self):
+        return self._opaqueTiles
     
     def __len__(self):
         return (self.side, self.side)
@@ -35,37 +50,37 @@ class Map(Square):
     def __getitem__(self, k):
         if isinstance(k, slice):
             start = k.start
-            if start is None or isinstance(start, Number):
-                start = self.tl
-            start = Vector2D(start[0], start[1])
+            if start is None or not isinstance(start, Iterable):
+                start = (self._tl[0], self._tl[1])
             
             stop = k.stop
-            if stop is None or isinstance(stop, Number):
-                stop = self.br
-            stop = Vector2D(stop[0], stop[1])
+            if stop is None or not isinstance(stop, Iterable):
+                stop = (self._br.x, self._br.y)
             
-            tl = Vector2D(min(start.x, stop.x), min(start.y, stop.y))
-            br = Vector2D(max(start.x, stop.x), max(start.y, stop.y))
-            
-            indexer = tl()
-            results = []
-            while indexer.y < br.y + self.world.SIZE:
-                while indexer.x < br.x + self.world.SIZE:
-                    results.append(self[indexer])
-                    indexer.x += self.world.SIZE
-                indexer.x = tl.x
-                indexer.y += self.world.SIZE
+            tlx = min(start[0], stop[0])
+            tly = min(start[1], stop[1])
+            brx = max(start[0], stop[0]) + self.world.SIZE
+            bry = max(start[1], stop[1]) + self.world.SIZE
+            x = tlx
+            y = tly
+            results = tuple()
+            while y < bry:
+                while x < brx:
+                    results += (self[(x, y)], )
+                    x += self.world.SIZE
+                x = tlx
+                y += self.world.SIZE
             return results
             
-        elif (isinstance(k, Iterable) or isinstance(k, tuple)) and len(k) == 2:
+        elif isinstance(k, Iterable) and len(k) == 2:
             k = Vector2D(*k).map(max, 0).map(min, self.side - self.world.SIZE)
-            k //= self.world.SIZE
-            k = k.map(int)
-            if str(k) not in self.data:
-                self.data[str(k)] = Tile(self.world, self.text[k[1]][k[0]], k[0], k[1])
+            k = (int(max(min(k[0], self.side - self.world.SIZE), 0) // self.world.SIZE),
+                 int(max(min(k[1], self.side - self.world.SIZE), 0) // self.world.SIZE))
+            strk = str(k)
+            if strk not in self.data:
+                self.data[strk] = Tile(self.world, self.text[k[1]][k[0]], k[0], k[1])
                 self.empty -= 1
-#             print('accessing tile with : {}   val : {}'.format(k, self.data[str(k)]))
-            return self.data[str(k)]
+            return self.data[strk]
         raise IndexError(k, type(k))
     
     def __setitem__(self, k, v):

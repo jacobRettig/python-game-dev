@@ -19,7 +19,7 @@ class Player(Mob):
     def DEFAULT(world):
         from world import World
         player = Player(world, (0, 0, 3 * World.SIZE / 6), LPC(hair='plain', shirt='brown', pants='teal', shoes='black'))
-        player.acts[0] = action.slash
+        player.acts = [action.slash]
         player.speed = 2
         return player
     
@@ -28,7 +28,7 @@ class Player(Mob):
 #         self._timeRate = 0
         return t
     
-    def _update(self):
+    def update(self):
         
         pressed = pygame.key.get_pressed()
         
@@ -44,10 +44,8 @@ class Player(Mob):
             else:
                 self.turn(1)
         
-        Mob._update(self)
-          
         if pressed[pygame.K_SPACE] is 1 and self.act is -1:
             self.action = 0
         
-        return Entity._update(self)
+        return Mob.update(self)
     

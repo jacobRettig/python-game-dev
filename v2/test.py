@@ -31,33 +31,48 @@ del HEIGHT
 def isShiftDown():
     return pygame.key.get_pressed()[pygame.K_LSHIFT] or pygame.key.get_pressed()[pygame.K_RSHIFT]
 
+import cProfile
+profile = cProfile.Profile()
+profile.enable()
 
 #Initialize variables
 txt = None
 with open('testMap.txt', 'r') as file:
     txt = file.readlines()
 world = World(txt)
+
+
+for i in range(20):
+    world.addEnemy()
+    
+    
 camera = Camera(background, world)
 
 #main infinite loop
 def main():
-    while True:
+#     while True:
 #        default event loop
-        for event in pygame.event.get():
+    for event in pygame.event.get():
 #             Quit conditions
-            if event.type == pygame.QUIT or pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                return
-        
-        
+        if event.type == pygame.QUIT or pygame.key.get_pressed()[pygame.K_ESCAPE]:
+            return
+    
+    
 #         update calls
-        
-        world.update()
+    
+    world.update()
 
-        camera.draw(screen)
-        pygame.display.flip()
-        
-        clock.tick(TICK_SPEED)
+    camera.draw(screen)
+    pygame.display.flip()
+    
+    clock.tick(TICK_SPEED)
     
 #Start execution
-main()
+for i in range(30):
+    main()
+
+profile.disable()
+profile.print_stats(2)
+
+
 pygame.quit()

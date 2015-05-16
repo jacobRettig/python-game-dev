@@ -26,7 +26,7 @@ class Vector2D(Vector, Iterable):
         self[1] = v    
     
     def __call__(self):
-        return Vector2D(self.x, self.y)
+        return Vector2D(self[0], self[1])
     
     def __getitem__(self, k):
         if k == 'x':
@@ -44,13 +44,13 @@ class Vector2D(Vector, Iterable):
     
         
     def swap(self):
-        return self(self.y, self.x)
+        return self(self[1], self[0])
     @property
     def sum(self):
-        return self.x + self.y
+        return self[0] + self[1]
     @property
     def product(self):
-        return self.x * self.y
+        return self[0] * self[1]
     @property
     def hypot(self):
         return (self ** 2).sum
@@ -67,7 +67,7 @@ class Vector2D(Vector, Iterable):
     
     @property
     def angle(self):
-        return math.atan2(self.y, self.x)
+        return math.atan2(self[1], self[0])
     @angle.setter
     def angle(self, angle):
         l = self.length
@@ -86,13 +86,13 @@ class Vector2D(Vector, Iterable):
     
 #     Angle addition formulae
     def sinAdd(self, other):
-        return self.y * other[0] + self.x * other[1]
+        return self[1] * other[0] + self[0] * other[1]
     def sinSub(self, other):
-        return self.y * other[0] - self.x * other[1]
+        return self[1] * other[0] - self[0] * other[1]
     def cosAdd(self, other):
-        return self.x * other[0] - self.y * other[1]
+        return self[0] * other[0] - self[1] * other[1]
     def cosSub(self, other):
-        return self.x * other[0] + self.y * other[1]
+        return self[0] * other[0] + self[1] * other[1]
     def angleAdd(self, other):
         return Vector2D(self.cosAdd(other), self.sinAdd(other))
     def angleSub(self, other):
@@ -100,9 +100,9 @@ class Vector2D(Vector, Iterable):
     
     @property
     def eighthTurn(self):
-        a = self.x > 0
-        b = self.y > 0
-        c = abs(self).x > abs(self).y
+        a = self[0] > 0
+        b = self[1] > 0
+        c = abs(self)[0] > abs(self)[1]
         if a is True:
             if b is True:
                 if c is True:

@@ -7,10 +7,10 @@ Created on May 9, 2015
 from square import Square
 
 class GameObject(Square):
-    def __init__(self, world, sq, isOpque=False, isSolid=False):
+    def __init__(self, world, sq, isOpaque=False, isSolid=False):
         Square.__init__(self, sq)
         self.world = world
-        self.isOpaque = isOpque
+        self.isOpaque = isOpaque
         self.isSolid = isSolid
         
     @property

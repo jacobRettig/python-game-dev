@@ -24,17 +24,17 @@ def refPoint(owner, h, v):
 #         getters and setters for x&y
         @property
         def x(self):
-            return owner.x + owner.side*h
+            return owner._tl[0] + owner.side*h
         @x.setter
         def x(self, val):
-            owner.x = val - owner.side*h
+            owner._tl[0] = val - owner.side*h
             
         @property
         def y(self):
-            return owner.y + owner.side*v
+            return owner._tl[1] + owner.side*v
         @y.setter
         def y(self, val):
-            owner.y = val - owner.side*v
+            owner._tl[1] = val - owner.side*v
             
 #         override normal Vector stuff to prevent unnecessary crashes
         def __len__(self):
@@ -106,8 +106,8 @@ class Square(Iterable):
 #     this prevents overwriting instance variables
     @util.InstanceGuard('_tl', 'set')
     def tl(self, value):
-        self.tl.x = value[0]
-        self.tl.y = value[1]
+        self.tl[0] = value[0]
+        self.tl[1] = value[1]
     @util.InstanceGuard('_tr', 'set')
     def tr(self, value): 
         self.tr.x = value[0]
@@ -127,14 +127,44 @@ class Square(Iterable):
         
         
 #     init quick get corner and center x&y values
-    x = util.GS('x', 'tl')
-    y = util.GS('y', 'tl')
+    @property
+    def x(self):
+        return self._tl[0]
+    @x.setter
+    def x(self, v):
+        self._tl[0] = v
+    @property
+    def y(self):
+        return self._tl[1]
+    @y.setter
+    def y(self, v):
+        self._tl[1] = v
     
-    cx = util.GS('x', 'cen')
-    cy = util.GS('y', 'cen')
-    
-    ox = util.GS('x', 'br')
-    oy = util.GS('y', 'br')
+    @property
+    def cx(self):
+        return self._cen.x
+    @cx.setter
+    def cx(self, v):
+        self._cen.x = v
+    @property
+    def cy(self):
+        return self._cen.y
+    @cy.setter
+    def cy(self, v):
+        self._cen.y = v
+
+    @property
+    def ox(self):
+        return self._br.x
+    @ox.setter
+    def ox(self, v):
+        self._br.x = v
+    @property
+    def oy(self):
+        return self._br.y
+    @oy.setter
+    def oy(self, v):    
+        self._br.y = v
         
         
 #     specific to square
@@ -144,65 +174,51 @@ class Square(Iterable):
     def list(self):
         return [self.tl, self.tr, self.br, self.bl]
     
-    @property
-    def area(self):
-        return self.side ** 2
-    @area.setter
-    def area(self, newArea):
-        self.side = math.sqrt(newArea)
-        
-    @property
-    def perimeter(self):
-        return 4 * self.side
-    @perimeter.setter
-    def perimeter(self, newPerimeter):
-        self.side = newPerimeter / 4
-        
-    def normalProjection(self, point):
-        x, y = 0, 0
-        
-        if self.ox > point.x:
-            if self.x < point.x:
-                x = 2
-            else:
-                x = 1
-        if self.oy > point.y:
-            if self.y < point.y:
-                y = 2
-            else:
-                y = 1
-                
-        l, r = None, None
-        if x == 0:
-            if y == 0:
-                l = self.bl
-                r = self.tr
-            elif y == 1:
-                l = self.br
-                r = self.tr
-            else:
-                l = self.br
-                r = self.tl
-        elif x == 1:
-            if y == 0:
-                l = self.bl
-                r = self.br
-            elif y == 1:
-                raise InvalidGeometry("Point is Inside the Square")
-            else:
-                l = self.tr
-                r = self.tl
-        else:
-            if y == 0:
-                l = self.tl
-                r = self.br
-            elif y == 1:
-                l = self.tl
-                r = self.bl
-            else:
-                l = self.tr
-                r = self.bl
-        return [l, r]
+#     def normalProjection(self, point):
+#         x, y = 0, 0
+#         
+#         if self.ox > point.x:
+#             if self.x < point.x:
+#                 x = 2
+#             else:
+#                 x = 1
+#         if self.oy > point.y:
+#             if self.y < point.y:
+#                 y = 2
+#             else:
+#                 y = 1
+#                 
+#         l, r = None, None
+#         if x == 0:
+#             if y == 0:
+#                 l = self.bl
+#                 r = self.tr
+#             elif y == 1:
+#                 l = self.br
+#                 r = self.tr
+#             else:
+#                 l = self.br
+#                 r = self.tl
+#         elif x == 1:
+#             if y == 0:
+#                 l = self.bl
+#                 r = self.br
+#             elif y == 1:
+#                 raise InvalidGeometry("Point is Inside the Square")
+#             else:
+#                 l = self.tr
+#                 r = self.tl
+#         else:
+#             if y == 0:
+#                 l = self.tl
+#                 r = self.br
+#             elif y == 1:
+#                 l = self.tl
+#                 r = self.bl
+#             else:
+#                 l = self.tr
+#                 r = self.bl
+#         return [l, r]
     
 #     assuming not inside
     def hypot(self, other):
@@ -228,29 +244,6 @@ class Square(Iterable):
            return other.x == self.x and other.y == self.y and other.side == self.side
         return False
     
-    def __add__(self, other):
-        sq = self()
-        sq += other
-        return sq
-    
-    def __sub__(self, other):
-        sq = self()
-        sq -= other
-        return sq
-        
-    def __iadd__(self, other):
-        self.tl += other
-        return self
-    
-    def __isub__(self, other):
-        self.tl -= other
-        return self
-    
-    def __neg__(self, other):
-        sq = self()
-        sq.tl = sq.br - sq.tl
-        return sq
-        
     
 #     get points to work with collection type stuff
 
@@ -261,7 +254,19 @@ class Square(Iterable):
         raise Exception("Squares are not Iterable")
     
     def __getitem__(self, key):
-        if key == 0 or key == 'tl':
+        if key == 'x':
+            return self._tl[0]
+        elif key == 'y':
+            return self._tl[1]
+        elif key == 'ox':
+            return self._br.x
+        elif key == 'oy':
+            return self._br.y
+        elif key == 'cx':
+            return self._cen.x
+        elif key == 'cy':
+            return self._cen.y
+        elif key == 0 or key == 'tl':
             return self.tl
         elif key == 1 or key == 'tr':
             return self.tr
@@ -270,20 +275,24 @@ class Square(Iterable):
         elif key == 3 or key == 'bl':
             return self.bl
         elif key == 'cen':
-            return self.cen
-        elif key == 'x':
-            return self.x
-        elif key == 'y':
-            return self.y
-        elif key == 'ox':
-            return self.ox
-        elif key == 'oy':
-            return self.oy
+            return self._cen
         else:
             raise IndexError('key : {}'.format(key))
         
     def __setitem__(self, key, value):
-        if key == 0 or key == 'tl':
+        if key == 'x':
+            self._tl[0] = value
+        elif key == 'y':
+            self._tl[1] = value
+        elif key == 'ox':
+            self._br.x = value
+        elif key == 'oy':
+            self._br.y = value
+        elif key == 'cx':
+            self._cen.x = value
+        elif key == 'cy':
+            self._cen.y = value
+        elif key == 0 or key == 'tl':
             self.tl = value
         elif key == 1 or key == 'tr':
             self.tr = value
@@ -293,23 +302,15 @@ class Square(Iterable):
             self.bl = value
         elif key == 'cen':
             self.cen = value
-        elif key == 'x':
-            self.x = value
-        elif key == 'y':
-            self.y = value
-        elif key == 'ox':
-            self.ox = value
-        elif key == 'oy':
-            self.oy = value
         else:
             raise IndexError('key : {}'.format(key))
         
 #     check if point or Square is inside of square (coordinate wise)
     def __contains__(self, value):
         if isinstance(value, Square):
-            return self.x < value.ox < self.ox + value.side and self.y < value.oy < self.oy + value.side
+            return self._tl[0] - value.side < value._tl[0] < self._tl[0] + self.side and self._tl[1] - value.side < value._tl[1] < self._tl[1] + self.side
 #         determine if point is inside square exclusive
-        return value.x < value[0] < self.ox and  self.y < value[1] < self.oy
+        return value._tl[0] < value[0] < self._tl[0] + self.side and  self._tl[1] < value[1] < self._tl[1] + self.side
 
 #     clone self
     def __call__(self):
@@ -340,7 +341,7 @@ class Square(Iterable):
         if self.cy > other.cy:
             diff.y = -diff.y
             
-        target += diff
+        target.tl += diff
         if target in other:
             target.deCollide(other, target)
         
@@ -351,9 +352,3 @@ class Square(Iterable):
         self.br = (min(self.ox, other.ox), min(self.oy, other.oy))
         
         return self
-        
-a = Square((19, 19, 5))
-b = Square((0, 0, 20))
-a.keepInside(b)
-
-print(a)

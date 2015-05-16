@@ -72,25 +72,17 @@ class Entity(GameObject):
     def move(self, amount=0):    
         self.tl += self.delta * amount * (self.world.time - self.lastTime)
     
-    def update(self):
-        val = self._update()
-        self.lastTime = self.world.time
-        return val
     
-    def _update(self):
+    def update(self):
         if self.isMoving is True:
             self.move(1)
         self.keepInside(self.world.map)
-        for tile in self.world.map[self.tl : self.br]:
-            self.onCollision(tile)
+        for tile in self.world.map.solidTiles:
+            self.deCollide(tile, self)
+            
+        self.lastTime = self.world.time
         
         return self.hp < 0
-    
-    
-    #     return True if movement should be undone
-    def onCollision(self, obstacle):
-        if obstacle.isSolid:
-            self.deCollide(obstacle, self)
     
     
     @staticmethod
@@ -155,7 +147,7 @@ class Mob(Entity):
         self.isMoving = False
         self.isActing = False
         self.act = -1
-        self.acts = util.ScalingList()
+        self.acts = []
         self.blurbs = {
                        'text':[],
                        'current':-1,
@@ -163,7 +155,6 @@ class Mob(Entity):
                        }
         
         self.animation = AnimationLPC(self, spriteSheet)
-        print(dir(self.animation))
         
         self.visDis = visDis
         self.visVec = visVec
@@ -186,7 +177,7 @@ class Mob(Entity):
     @property
     def imagePosition(self):
         image = self.image
-        return (self.cx - image.get_width()/2, self.cy - image.get_height())
+        return (self.cx - image.get_width()/2, self.oy - image.get_height())
     
     @property
     def action(self):
@@ -207,12 +198,12 @@ class Mob(Entity):
         if self.act is not -1:
             self.acts[self.act].onStart(self)
         
-    def _update(self):
+    def update(self):
         self.seen = self.sight()
-        for seen in self.sight():
+        for seen in self.seen:
             self.onSight(seen)
         
-        return Entity._update(self)
+        return Entity.update(self)
     
     @property
     def time(self):
@@ -229,60 +220,68 @@ class Mob(Entity):
 
 #     ROUGH as in very rough first version of the vision method 
     def sight(self):
-        x = (0, self.visL.x, self.visR.x)
-        y = (0, self.visL.y, self.visR.y)
-        sq = Square((min(x), min(y), max(max(x) - min(x), max(y) - min(y))))
-        cen = self.cen()
-        
-        sR = self.visR
-        sL = self.visL.angleSub(sR).angle
-        
-        sq += cen
-        
-        boundingRect = self.world.map[self.tl : self.br]
-        for obj in self.world.entityList:
-            if obj in sq:
-                boundingRect.append(obj)
-                
-        keepGoing = True
-        seen = []
-        rangedList = []
-        fn = (lambda x, y: x[2] - y[2])
-        for obj in boundingRect:
-            try:
-                oL, oR = obj.normalProjection(cen)
-                oL = oL.angleSub(sR).angle
-                oR = oR.angleSub(sR).angle
-                if oR >= 0 and oR <= sL:
-                    rangedList = util.binaryInsertionSort(fn, rangedList, (obj, min(sL, oL), oR))
-                elif oL >= 0 and oL <= sL:
-                    rangedList = util.binaryInsertionSort(fn, rangedList, (obj, oL, max(0, oR)))
-            except square.InvalidGeometry:
-                seen.append(obj)
-                if obj.isOpaque:
-                    obj.keepGoing = False
-                    
-        if keepGoing is False:
-            return seen
-        
-        for obj in rangedList:
-            ang = obj[2]
-            success = True
-            disCheck = obj[0].hypot(cen)
-            for obstacle in rangedList:
-                if not obj is obstacle:
-                    if ang < obstacle[2]:
-                        break
-                    elif obstacle[0].isOpaque and ang < obstacle[1] and obstacle[0].hypot(cen) < disCheck:
-                        ang = obstacle[1]
-                        if ang > obj[1]:
-                            success = False
-                            break
-                        
-            if success:
-                seen.append(obstacle[0])
-                
+        seen = tuple()
+        for E in self.world.entityList:
+            if self is not E and (self.cen - E.cen).hypot <= 5**2:
+                seen += (E, )
         return seen
+#         x = (0, self.visL.x, self.visR.x)
+#         y = (0, self.visL.y, self.visR.y)
+#         sq = Square((min(x), min(y), max(max(x) - min(x), max(y) - min(y))))
+#         cen = self.cen()
+#         
+#         sR = self.visR
+#         sL = self.visL.angleSub(sR).angle
+#         
+#         sq += cen
+#         
+#         boundingRect = tuple()
+#         for tile in self.world.map.opaqueTiles:
+#             if tile in sq:
+#                 boudingRect += (tile, )
+#         for obj in self.world.entityList:
+#             if obj in sq:
+#                 boundingRect += (obj, )
+#                 
+#         keepGoing = True
+#         seen = tuple()
+#         rangedList = []
+#         fn = (lambda x, y: x[2] - y[2])
+#         for obj in boundingRect:
+#             try:
+#                 oL, oR = obj.normalProjection(cen)
+#                 oL = oL.angleSub(sR).angle
+#                 oR = oR.angleSub(sR).angle
+#                 if oR >= 0 and oR <= sL:
+#                     rangedList = util.binaryInsertionSort(fn, rangedList, (obj, min(sL, oL), oR))
+#                 elif oL >= 0 and oL <= sL:
+#                     rangedList = util.binaryInsertionSort(fn, rangedList, (obj, oL, max(0, oR)))
+#             except square.InvalidGeometry:
+#                 seen += (obj, )
+#                 if obj.isOpaque:
+#                     obj.keepGoing = False
+#                     
+#         if keepGoing is False:
+#             return seen
+#         
+#         for obj in rangedList:
+#             ang = obj[2]
+#             success = True
+#             disCheck = obj[0].hypot(cen)
+#             for obstacle in rangedList:
+#                 if not obj is obstacle:
+#                     if ang < obstacle[2]:
+#                         break
+#                     elif obstacle[0].isOpaque and ang < obstacle[1] and obstacle[0].hypot(cen) < disCheck:
+#                         ang = obstacle[1]
+#                         if ang > obj[1]:
+#                             success = False
+#                             break
+#                         
+#             if success:
+#                 seen += (obstacle[0], )
+#                 
+#         return seen
     
     def onSight(self, target):
         pass

@@ -5,13 +5,15 @@ Created on Apr 29, 2015
 '''
 
 import math
-from entity import Mob
+from entity import Mob, Entity
 from player import Player
 import action
+from __builtin__ import False
 
 class Enemy(Mob):
     def __init__(self, world, dim, spriteSheet, *args, **kwargs):
         Mob.__init__(self, world, dim, spriteSheet, *args, **kwargs)
+        self.isMoving = False
         self.target = self.cen()
 #         self.acts[0] = action.slash
 #         self.acts[1] = action.stab
@@ -27,7 +29,13 @@ class Enemy(Mob):
         return 0
     
     def AIMove(self):
-        return (self.cen - self.target + self.delta).hypot < (self.cen - self.target).hypot
+        cen = self.cen()
+        self.move(True)
+        if self._cen.gethypot(self.target) > cen.gethypot(self.target):
+            self.move(False)
+            return False
+        else:
+            return True
     
     def onSight(self, target):
         if isinstance(target, Player):
@@ -43,7 +51,9 @@ class Enemy(Mob):
     
     def update(self):
         self.turn(self.AITurn())
+        self.doSight()
         self.isMoving = self.AIMove()
-        return Mob.update(self)
+        self.doCollisions()
+        return Entity.updateWrapUp(self)
         
     

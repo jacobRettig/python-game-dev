@@ -19,7 +19,7 @@ class World():
         self.time = 0
         
         self.player = Player.DEFAULT(self)
-        self.entityList = set((self.player, ))
+        self.entityList = frozenset((self.player, ))
         self._map = MapClass(self, mapText)
         
         from spriteSheetLPC import LPC
@@ -47,5 +47,5 @@ class World():
                 if E in tile:
                     continue
             break
-        self.entityList.add(E)
+        self.entityList = frozenset(tuple(self.entityList) + (E,))
         

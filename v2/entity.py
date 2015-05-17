@@ -23,31 +23,16 @@ import util, sys
 
 
 
-
-def deltaInstance(owner):
-    @util.Vector2DCustom
-    def delta(self, k):
-        if k == 0 or k == 'x':
-            return owner.dir.x * owner.speed
-        elif k == 1 or k == 'y':
-            return owner.dir.y * owner.speed
-        else:
-            raise IndexError
-
-    return delta
-
 class Entity(GameObject):
     def __init__(self, world, dim, direction=(1,0), speed=.2, turnRate=math.pi/16, hp=20):
         GameObject.__init__(self, world, dim)
         self.dir = direction
         self.turnRate = turnRate
         self.speed = speed
-        self._delta = deltaInstance(self)
         
         self.hp = hp
         self.lastTime = self.world.time
                 
-    delta = util.InstanceGuard('_delta', None)
     @util.InstanceGuard('_turnRate', 'set')
     def turnRate(self, val):
         self._turnRate = Entity.normVector(val)
@@ -55,8 +40,6 @@ class Entity(GameObject):
     def dir(self, val):
         self._dir = Entity.normVector(val)
     
-    dx = util.GS('x', 'delta')
-    dy = util.GS('y', 'delta')
 
 #     basic movement
 
@@ -69,17 +52,30 @@ class Entity(GameObject):
                 for i in range(abs(amount)):
                     self.dir = self.dir.angleSub(self.turnRate)
     
-    def move(self, amount=0):    
-        self.tl += self.delta * amount * (self.world.time - self.lastTime)
+    def move(self, isForward=True):
+        if isForward:
+            self._tl[0] += self._dir.x * self.speed * (self.world.time - self.lastTime)
+            self._tl[1] += self._dir.y * self.speed * (self.world.time - self.lastTime)
+        else:
+            self._tl[0] -= self._dir.x * self.speed * (self.world.time - self.lastTime)
+            self._tl[1] -= self._dir.y * self.speed * (self.world.time - self.lastTime)    
     
-    
-    def update(self):
-        if self.isMoving is True:
-            self.move(1)
+    def doCollisions(self):
         self.keepInside(self.world.map)
         for tile in self.world.map.solidTiles:
             self.deCollide(tile, self)
-            
+    
+    def doMovement(self):
+        if self.isMoving is True:
+            self.move()
+        
+    
+    def update(self):
+        self.doMovement()
+        self.doCollisions()
+        return self.updateWrapUp()
+    
+    def updateWrapUp(self):
         self.lastTime = self.world.time
         
         return self.hp < 0
@@ -199,11 +195,14 @@ class Mob(Entity):
             self.acts[self.act].onStart(self)
         
     def update(self):
+        self.doSight()
+        return Entity.update(self)
+    
+    def doSight(self):
         self.seen = self.sight()
         for seen in self.seen:
             self.onSight(seen)
         
-        return Entity.update(self)
     
     @property
     def time(self):

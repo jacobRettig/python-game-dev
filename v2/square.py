@@ -331,20 +331,20 @@ class Square(Iterable):
         y = (self.y, other.y)
         ox = (self.ox, other.ox)
         oy = (self.oy, other.oy)
-        diff = Vector2D(max(x), max(y)) - Vector2D(min(ox), min(oy))
-        if abs(diff.x) < abs(diff.y):
-            diff.y = 0
+        diffx = max(x) - min(ox)
+        diffy = max(y) - min(oy)
+        diff = (max(x), max(y)) - Vector2D(min(ox), min(oy))
+        if abs(diffx) < abs(diffy):
+            if self.cx > other.cx:
+                target._tl[0] -= diffx
+            else:
+                target._tl[0] += diffx
         else:
-            diff.x = 0
-        if self.cx > other.cx:
-            diff.x = -diff.x
-        if self.cy > other.cy:
-            diff.y = -diff.y
+            if self.cy > other.cy:
+                target._tl[1] -= diffy
+            else:
+                target._tl[1] += diffy
             
-        target.tl += diff
-        if target in other:
-            target.deCollide(other, target)
-        
         return target
     
     def keepInside(self, other):

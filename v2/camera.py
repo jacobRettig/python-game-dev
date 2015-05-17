@@ -7,12 +7,9 @@ from square import Square
 class Camera:
     CELLSIZE = 32
     
-    def __init__(self, background, world, pos=None, zoom=1):
+    def __init__(self, background, world, zoom=1):
         self.background = background
         self.world = world
-        if pos is None:
-            pos = (0, 0)
-        self.pos = Vector2D(pos[0], pos[1])
         self.zoom = zoom
 
 #     screen must be a square Surface
@@ -32,7 +29,7 @@ class Camera:
                 screen.blit(E.image, E.imagePosition)
                 
     def drawMap(self, screen, display):
-        for tile in self.world.map[display.tl : display.br]:
+        for tile in self.world.map.completeSet:
             if tile in display:
                 screen.blit(tile.image, tile.tl - display.tl)
         

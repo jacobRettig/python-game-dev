@@ -39,11 +39,11 @@ with open('testMap.txt', 'r') as file:
 world = World(txt)
 
 
-for i in range(4):
-    world.addEnemy()
+# for i in range(20):
+#     world.addEnemy()
     
     
-camera = Camera(background, world)
+camera = Camera(background, world, 1.5)
 
 import cProfile
 profile = cProfile.Profile()
@@ -70,7 +70,7 @@ def main():
     clock.tick(TICK_SPEED)
     
 #Start execution
-for i in range(100):
+for i in frozenset(range(200)):
     main()
 
 profile.disable()

@@ -21,9 +21,16 @@ class Map(Square):
     def __init__(self, world, text):
         self.world = world
         self.text = text
-        Square.__init__(self, (0, 0, self.world.SIZE * (min(reduce(min, list(map(len, text))), len(text)) - 1)))
+        side = (min(reduce(min, list(map(len, text))), len(text)) - 1)
+        Square.__init__(self, (0, 0, self.world.SIZE * side))
         self.data = {}
-        self.empty = self.side ** 2
+        
+        for i in range(side):
+            for j in range(side):
+                self.data[str((i, j))] = Tile(self.world, self.text[i][j], i, j)
+                
+        self.completeSet = frozenset(self.data.values())
+        
         self.solidTiles = set()
         self.opaqueTiles = set()
         for tile in self[:]:
@@ -31,48 +38,41 @@ class Map(Square):
                 self.solidTiles.add(tile)
             if tile.isOpaque:
                 self.opaqueTiles.add(tile)
+        self.solidTiles = frozenset(self.solidTiles)
+        self.opaqueTiles = frozenset(self.opaqueTiles)
+        self.completeSet = frozenset(self.data.values())
         
-    @property
-    def unloadedCount(self):
-        return self.empty
-    
     def __len__(self):
-        return (self.side, self.side)
+        return (self.side / self.world.SIZE, self.side / self.world.SIZE)
     
     def __getitem__(self, k):
         if isinstance(k, slice):
+            if k.start == None and k.stop == None:
+                return self.completeSet
+            
             start = k.start
-            if start is None or not isinstance(start, Iterable):
+            if not isinstance(start, Iterable):
                 start = (self._tl[0], self._tl[1])
             
             stop = k.stop
-            if stop is None or not isinstance(stop, Iterable):
+            if not isinstance(stop, Iterable):
                 stop = (self._br.x, self._br.y)
             
             tlx = min(start[0], stop[0])
             tly = min(start[1], stop[1])
-            brx = max(start[0], stop[0]) + self.world.SIZE
-            bry = max(start[1], stop[1]) + self.world.SIZE
-            x = tlx
-            y = tly
+            brx = max(start[0], stop[0])
+            bry = max(start[1], stop[1])
             results = set()
-            while y < bry:
-                while x < brx:
-                    results.add(self[(x, y)])
-                    x += self.world.SIZE
-                x = tlx
-                y += self.world.SIZE
+            
+            for tile in self.completeSet:
+                if tlx - tile.side <= tile._tl[0] <= brx and tly - tile.side <= tile._tl[1] <= bry:
+                    results.add(tile)
+                     
             return results
             
-        elif isinstance(k, Iterable) and len(k) == 2:
-            k = Vector2D(*k).map(max, 0).map(min, self.side - self.world.SIZE)
-            k = (int(max(min(k[0], self.side - self.world.SIZE), 0) // self.world.SIZE),
-                 int(max(min(k[1], self.side - self.world.SIZE), 0) // self.world.SIZE))
-            strk = str(k)
-            if strk not in self.data:
-                self.data[strk] = Tile(self.world, self.text[k[1]][k[0]], k[0], k[1])
-                self.empty -= 1
-            return self.data[strk]
+        elif len(k) == 2:
+            return self.data[str((int(max(min(k[0], self.side - self.world.SIZE), 0) // self.world.SIZE),
+                 int(max(min(k[1], self.side - self.world.SIZE), 0) // self.world.SIZE)))]
         raise IndexError(k, type(k))
     
     def __setitem__(self, k, v):

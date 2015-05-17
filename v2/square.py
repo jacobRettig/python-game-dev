@@ -310,7 +310,7 @@ class Square(Iterable):
         if isinstance(value, Square):
             return self._tl[0] - value.side < value._tl[0] < self._tl[0] + self.side and self._tl[1] - value.side < value._tl[1] < self._tl[1] + self.side
 #         determine if point is inside square exclusive
-        return value._tl[0] < value[0] < self._tl[0] + self.side and  self._tl[1] < value[1] < self._tl[1] + self.side
+        return self._tl[0] < value[0] < self._tl[0] + self.side and  self._tl[1] < value[1] < self._tl[1] + self.side
 
 #     clone self
     def __call__(self):

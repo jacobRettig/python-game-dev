@@ -14,11 +14,9 @@ class Camera:
 
 #     screen must be a square Surface
     def draw(self, screen):
-        if screen.get_width() != screen.get_height():
-            raise Exception('Must pass in square screen')
-        
-        display = Square((0, 0, screen.get_width()))
+        display = Square((0, 0, min(screen.get_width(), screen.get_height())))
         display.side /= self.zoom
+        screen.set_clip((0, 0, display.side, display.side))
         display.cen = self.world.player.cen()
         display.keepInside(self.world.map)
 
@@ -26,7 +24,7 @@ class Camera:
         
         for E in self.world.entityList:#(E2 for E2 in self.world.entityList if E2 in gameSpace):
             if E in display:
-                screen.blit(E.image, E.imagePosition)
+                screen.blit(E.image, E.imagePosition - display.tl)
                 
     def drawMap(self, screen, display):
         for tile in self.world.map.completeSet:

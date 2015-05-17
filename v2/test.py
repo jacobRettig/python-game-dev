@@ -37,10 +37,10 @@ txt = None
 with open('testMap.txt', 'r') as file:
     txt = file.readlines()
 world = World(txt)
+world.player.speed = 4
 
-
-# for i in range(20):
-#     world.addEnemy()
+for i in range(20):
+    world.addEnemy()
     
     
 camera = Camera(background, world, 1.5)
@@ -52,26 +52,26 @@ profile.enable()
 
 #main infinite loop
 def main():
-#     while True:
 #        default event loop
     for event in pygame.event.get():
 #             Quit conditions
         if event.type == pygame.QUIT or pygame.key.get_pressed()[pygame.K_ESCAPE]:
-            return
+            return False
     
     
 #         update calls
     
     world.update()
-
+    
     camera.draw(screen)
     pygame.display.flip()
     
     clock.tick(TICK_SPEED)
+    return True
     
 #Start execution
-for i in frozenset(range(200)):
-    main()
+while main():
+    pass
 
 profile.disable()
 profile.print_stats(2)

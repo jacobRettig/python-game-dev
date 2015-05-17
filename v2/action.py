@@ -4,8 +4,6 @@ Created on May 13, 2015
 @author: jacobrettig
 '''
 
-from entity import Mob
-
 class Action():
     def __init__(self, action, onStart=None):
         if action is not None and not isinstance(action, str):
@@ -35,16 +33,29 @@ class Action():
 
 @Action('slash')
 def slash(self, owner):
+    owner.isMoving = False
+    from entity import Mob
     for seen in owner.seen:
         if isinstance(seen, Mob) and seen.hypot(owner.cen) <= 15:
             seen.hp -= 2
             
-@Action('stab')
-def stab(self, owner):
+@Action('thrust')
+def shove(self, owner):
+    owner.isMoving = False
+    from entity import Mob
     for seen in owner.seen:
-        if isinstance(seen, Mob) and seen.hypot(owner.cen) <= 10:
-            seen.hp -= 3
-             
+        if isinstance(seen, Mob) and seen.hypot(owner.cen) <= 10 ** 5:
+            seen.hp -= 20
+
+@Action('hurt')
+def death(self, owner):
+    print('death')
+    owner.isMoving = False
+    owner.hp = 99999
+@death.setOnCycle
+def death(self, owner):
+    owner.isAlive = False
+    
     
     
     

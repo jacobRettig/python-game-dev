@@ -37,7 +37,7 @@ class Tile(GameObject):
         if self.id is ' ':
             return self.images[30][10]
         elif self.id is '#':
-            if self.oy != self.world.map.oy and self.world.map[self.tl + (0, self.world.SIZE)].id is '#':
+            if self.oy != self.world.map.oy and self.world.map[self._tl + (0, self.world.SIZE)].id is '#':
                 return self.images[25][11]
             else:
                 return self.images[24][7]

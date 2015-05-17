@@ -4,6 +4,7 @@ Created on Apr 29, 2015
 @author: jacobrettig
 '''
 
+import pygame
 import math
 from entity import Mob, Entity
 from player import Player
@@ -54,6 +55,10 @@ class Enemy(Mob):
         self.doSight()
         self.isMoving = self.AIMove()
         self.doCollisions()
-        return Entity.updateWrapUp(self)
+        if pygame.key.get_pressed()[pygame.K_q]:
+            self.action = 0
+        if Entity.updateWrapUp(self):
+            self.action = 0
+        return not self.isAlive
         
     

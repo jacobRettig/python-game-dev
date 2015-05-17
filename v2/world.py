@@ -19,7 +19,7 @@ class World():
         self.time = 0
         
         self.player = Player.DEFAULT(self)
-        self.entityList = frozenset((self.player, ))
+        self.entityList = set((self.player, ))
         self._map = MapClass(self, mapText)
         
         from spriteSheetLPC import LPC
@@ -31,9 +31,11 @@ class World():
     
     def update(self):
         self.time += self.timeSpeed * self.player.timeRate()
+        removalSet = set()
         for entity in self.entityList:
             if entity.update():
-                self.entityList.remove(entity)
+                removalSet.add(entity)
+        self.entityList.difference_update(removalSet)
         
     def addEnemy(self):
         E = Enemy(self, (0, 0, World.SIZE/2), self.spriteSheet)
@@ -47,5 +49,6 @@ class World():
                 if E in tile:
                     continue
             break
-        self.entityList = frozenset(tuple(self.entityList) + (E,))
+        E.target = E.cen
+        self.entityList.add(E)
         

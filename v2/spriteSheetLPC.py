@@ -81,7 +81,6 @@ class LPC():
                 for itm in ('eyes', 'ears', 'nose'):
                     self[itm] = 'none'
                 self['gender'] = 'male'
-            
         self._image = None
         
     def __iter__(self):
@@ -169,14 +168,19 @@ class AnimationLPC():
             self.spriteSheet = LPC()
         
         self.action = 'none'
-        self.speed = 5
+        self.speed = 8
         self.dirx, self.diry = 1, 0
         self.cycles = 0
         self.time = self.owner.time
         
         for key in kwargs.keys():
             setattr(self, key, kwargs[key])
-            
+    
+    def __getitem__(self, k):
+        return self.spriteSheet[k]
+    def __setitem__(self, k, v):
+        self.spriteSheet[k] = v
+    
     @property
     def image(self):
         self.dirx, self.diry = self.owner.dir.x, self.owner.dir.y

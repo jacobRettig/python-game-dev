@@ -39,7 +39,7 @@ def slash(self, owner):
         if isinstance(seen, Mob) and seen.hypot(owner.cen) <= 15:
             seen.hp -= 2
             
-@Action('thrust')
+@Action('cast')
 def shove(self, owner):
     owner.isMoving = False
     from entity import Mob

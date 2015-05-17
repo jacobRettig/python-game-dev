@@ -38,6 +38,7 @@ with open('testMap.txt', 'r') as file:
     txt = file.readlines()
 world = World(txt)
 world.player.speed = 4
+world.player.animation['beard'] = 'mustache'
 
 for i in range(20):
     world.addEnemy()

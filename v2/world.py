@@ -4,11 +4,9 @@ Created on Apr 20, 2015
 @author: jacobrettig
 '''
 
-import pygame
-
-from player import Player
-from map import Map as MapClass
 from enemy import Enemy
+from map import Map as MapClass
+from player import Player
 
 
 class World():
@@ -51,4 +49,5 @@ class World():
             break
         E.target = E.cen
         self.entityList.add(E)
+        
         

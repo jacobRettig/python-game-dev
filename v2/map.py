@@ -4,14 +4,16 @@ Created on Apr 27, 2015
 @authand: jacobrettig
 '''
 from collections import Iterable
+import functools
+from numbers import Number
 from random import Random
 
-from vector2d import Vector2D
+from pygame.examples.moveit import GameObject
+
+from gameObject import GameObject
 from square import Square
 from tile import Tile
-from numbers import Number
-from pygame.examples.moveit import GameObject
-from gameObject import GameObject
+from vector2d import Vector2D
 
 
 rand = Random()
@@ -21,7 +23,7 @@ class Map(Square):
     def __init__(self, world, text):
         self.world = world
         self.text = text
-        side = (min(reduce(min, list(map(len, text))), len(text)) - 1)
+        side = (min(functools.reduce(min, list(map(len, text))), len(text)) - 1)
         Square.__init__(self, (0, 0, self.world.SIZE * side))
         self.data = {}
         

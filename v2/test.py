@@ -4,9 +4,10 @@ Created on May 4, 2015
 @author: jacobrettig
 '''
 
+import cProfile
+
 import pygame
 
-import spriteSheetSimple
 from camera import Camera
 from world import World
 
@@ -40,13 +41,12 @@ world = World(txt)
 world.player.speed = 4
 world.player.animation['beard'] = 'mustache'
 
-for i in range(20):
+for i in range(5):
     world.addEnemy()
     
     
-camera = Camera(background, world, 1.5)
+camera = Camera(background, world, 1)
 
-import cProfile
 profile = cProfile.Profile()
 profile.enable()
 

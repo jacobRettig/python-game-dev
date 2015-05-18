@@ -10,18 +10,14 @@ import functools
 import math, util
 from numbers import Number
 import random
-import action
 
+import action
 from gameObject import GameObject
 from spriteSheetLPC import AnimationLPC
 from square import Square
 import square
-from vector2d import Vector2D
 import util, sys
-
-
-
-
+from vector2d import Vector2D
 
 
 class Entity(GameObject):
@@ -164,6 +160,7 @@ class Mob(Entity):
     def blurb(self):
         if self.world.time >= self.blurbs['time']:
             self.blurbs['current'] = random.randint(0, len(self.blurbs['text'])) - 1
+            self.blurbs['time'] = self.world.time + random.random() * 50
         if self.blurbs['current'] is -1:
             return ''
         else:

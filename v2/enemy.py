@@ -4,12 +4,14 @@ Created on Apr 29, 2015
 @author: jacobrettig
 '''
 
-import pygame
 import math
+
+import pygame
+
+import action
 from entity import Mob, Entity
 from player import Player
-import action
-from __builtin__ import False
+
 
 class Enemy(Mob):
     def __init__(self, world, dim, spriteSheet, *args, **kwargs):

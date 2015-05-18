@@ -1,12 +1,15 @@
 import pygame
-from vector2d import Vector2D
-import tile
+
 import entity
 from square import Square
+import tile
+
 
 class Camera:
     CELLSIZE = 32
-    
+    if pygame.font.get_init() == False:
+        pygame.font.init()
+        
     def __init__(self, background, world, zoom=1):
         self.background = background
         self.world = world
@@ -22,9 +25,15 @@ class Camera:
 
         self.drawMap(screen, display)
         
-        for E in self.world.entityList:#(E2 for E2 in self.world.entityList if E2 in gameSpace):
+        for E in self.world.entityList:
             if E in display:
                 screen.blit(E.image, E.imagePosition - display.tl)
+                
+        for E in self.world.entityList:
+            if E in display and E.blurb != None:
+                font = pygame.font.Font(pygame.font.get_default_font(), 20)
+                text = font.render(E.blurb, False, (0, 0, 0))
+                screen.blit(text, E.imagePosition - display.tl - (0, text.get_height()))
                 
     def drawMap(self, screen, display):
         for tile in self.world.map.completeSet:

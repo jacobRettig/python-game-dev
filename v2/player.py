@@ -5,9 +5,9 @@ Created on May 13, 2015
 '''
 import pygame
 
-from entity import Mob, Entity
-from spriteSheetLPC import LPC
 import action
+from entity import Mob
+from spriteSheetLPC import LPC
 
 
 class Player(Mob):
@@ -15,12 +15,16 @@ class Player(Mob):
         Mob.__init__(self, *args, **kwargs)
         self._timeRate = 0
         
+    def __hash__(self):
+        return id(self)
+        
     @staticmethod
     def DEFAULT(world):
         from world import World
         player = Player(world, (0, 0, 3 * World.SIZE / 6), LPC(hair='plain', shirt='brown', pants='teal', shoes='black'))
         player.acts = [action.shove]
         player.speed = 2
+        print(hash(player))
         return player
     
     def timeRate(self):
@@ -57,4 +61,3 @@ class Player(Mob):
                     self.turn(1)
         
         return Mob.update(self)
-    

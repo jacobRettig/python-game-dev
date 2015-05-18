@@ -13,6 +13,9 @@ class GameObject(Square):
         self.isOpaque = isOpaque
         self.isSolid = isSolid
         
+    def __hash__(self):
+        return id(self)    
+    
     @property
     def image(self):
         raise AttributeError("No Image Getter Defined")

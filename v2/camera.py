@@ -33,7 +33,7 @@ class Camera:
             if E in display and E.blurb != None:
                 font = pygame.font.Font(pygame.font.get_default_font(), 20)
                 text = font.render(E.blurb, False, (0, 0, 0))
-                screen.blit(text, E.imagePosition - display.tl - (0, text.get_height()))
+                screen.blit(text, E.imagePosition - display.tl - (text.get_width() / 2, text.get_height()))
                 
     def drawMap(self, screen, display):
         for tile in self.world.map.completeSet:

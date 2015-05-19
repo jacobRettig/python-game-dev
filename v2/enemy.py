@@ -14,8 +14,8 @@ from player import Player
 
 
 class Enemy(Mob):
-    def __init__(self, world, dim, spriteSheet, *args, **kwargs):
-        Mob.__init__(self, world, dim, spriteSheet, *args, **kwargs)
+    def __init__(self, world, dim, *args, **kwargs):
+        Mob.__init__(self, world, dim, *args, **kwargs)
         self.isMoving = False
         self.target = self.cen()
 #         self.acts[0] = action.slash
@@ -52,14 +52,13 @@ class Enemy(Mob):
                     
     
     def update(self):
-        self.turn(self.AITurn())
-        self.doSight()
-        self.isMoving = self.AIMove()
-        self.doCollisions()
-        if pygame.key.get_pressed()[pygame.K_q]:
-            self.action = 0
-        if Entity.updateWrapUp(self):
-            self.action = 0
+        self.doActionTrigger()
+        
+        if self.act == -1:
+            self.turn(self.AITurn())
+            self.doSight()
+            self.isMoving = self.AIMove()
+            self.doCollisions()
         return not self.isAlive
         
     

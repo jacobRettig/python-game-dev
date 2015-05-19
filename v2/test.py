@@ -40,7 +40,8 @@ with open('testMap.txt', 'r') as file:
 world = World(txt)
 world.player.speed = 4
 world.player['beard'] = 'mustache'
-world.player['right hand'] = 'recurvebow'
+world.player['right hand'] = 'dagger'
+world.player['left hand'] = 'arrow'
 
 for i in range(5):
     world.addEnemy()

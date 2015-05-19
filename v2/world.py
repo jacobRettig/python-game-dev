@@ -20,8 +20,7 @@ class World():
         self.entityList = set((self.player, ))
         self._map = MapClass(self, mapText)
         
-        from spriteSheetLPC import LPC
-        self.spriteSheet = LPC(body='skeleton')
+        self.loadedSheets = {}
         
     @property
     def map(self):
@@ -31,23 +30,11 @@ class World():
         self.time += self.timeSpeed * self.player.timeRate()
         removalSet = set()
         for entity in self.entityList:
-            if entity.update():
+            entity.update()
+            if not entity.isAlive:
                 removalSet.add(entity)
         self.entityList.difference_update(removalSet)
         
-    def addEnemy(self):
-        E = Enemy(self, (0, 0, World.SIZE/2), self.spriteSheet)
-        E.speed = 1.5
-        import random
-        while True:
-            E.cx = random.random() * self.map.side
-            E.cy = random.random() * self.map.side
-            E.keepInside(self.map)
-            for tile in self.map.solidTiles:
-                if E in tile:
-                    continue
-            break
-        E.target = E.cen
-        self.entityList.add(E)
+    
         
         

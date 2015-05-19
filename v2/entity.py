@@ -38,6 +38,14 @@ class Entity(GameObject):
         self._dir = Entity.normVector(val)
     
 
+    def doActionTrigger(self):
+        if self.act == -1:
+            for i in range(len(self.acts)):
+                if self.acts[i].trigger(self):
+                    print('setting action : {}'.format(i))
+                    self.action = i
+                    break
+
 #     basic movement
 
     def turn(self, amount=0):
@@ -134,7 +142,7 @@ def visRInstance(owner):
     
     
 class Mob(Entity):
-    def __init__(self, world, dim, spriteSheet, direction=(1,0), speed=.6, turnRate=math.pi/20, visDis=6, visVec=(math.sqrt(2),)*2,
+    def __init__(self, world, dim, direction=(1,0), speed=.6, turnRate=math.pi/20, visDis=6, visVec=(math.sqrt(2),)*2,
          hp=20):
         Entity.__init__(self, world, dim, direction, speed, turnRate, hp)
         self.isAlive = True
@@ -149,7 +157,7 @@ class Mob(Entity):
                        'time':self.world.time + random.random() * 50
                        }
         
-        self.animation = AnimationLPC(self, spriteSheet)
+        self.animation = AnimationLPC(self)
         
         self.visDis = visDis
         self.visVec = visVec
@@ -199,8 +207,7 @@ class Mob(Entity):
         
     def update(self):
         self.doSight()
-        if Entity.update(self):
-            self.action = 0
+        Entity.update(self)
         return not self.isAlive
     
     def doSight(self):
@@ -236,63 +243,6 @@ class Mob(Entity):
             if self is not E and (cen - E.cen).hypot <= self.sightDistance:
                 seen.add(E)
         return seen
-#         x = (0, self.visL.x, self.visR.x)
-#         y = (0, self.visL.y, self.visR.y)
-#         sq = Square((min(x), min(y), max(max(x) - min(x), max(y) - min(y))))
-#         cen = self.cen()
-#         
-#         sR = self.visR
-#         sL = self.visL.angleSub(sR).angle
-#         
-#         sq += cen
-#         
-#         boundingRect = tuple()
-#         for tile in self.world.map.opaqueTiles:
-#             if tile in sq:
-#                 boudingRect += (tile, )
-#         for obj in self.world.entityList:
-#             if obj in sq:
-#                 boundingRect += (obj, )
-#                 
-#         keepGoing = True
-#         seen = tuple()
-#         rangedList = []
-#         fn = (lambda x, y: x[2] - y[2])
-#         for obj in boundingRect:
-#             try:
-#                 oL, oR = obj.normalProjection(cen)
-#                 oL = oL.angleSub(sR).angle
-#                 oR = oR.angleSub(sR).angle
-#                 if oR >= 0 and oR <= sL:
-#                     rangedList = util.binaryInsertionSort(fn, rangedList, (obj, min(sL, oL), oR))
-#                 elif oL >= 0 and oL <= sL:
-#                     rangedList = util.binaryInsertionSort(fn, rangedList, (obj, oL, max(0, oR)))
-#             except square.InvalidGeometry:
-#                 seen += (obj, )
-#                 if obj.isOpaque:
-#                     obj.keepGoing = False
-#                     
-#         if keepGoing is False:
-#             return seen
-#         
-#         for obj in rangedList:
-#             ang = obj[2]
-#             success = True
-#             disCheck = obj[0].hypot(cen)
-#             for obstacle in rangedList:
-#                 if not obj is obstacle:
-#                     if ang < obstacle[2]:
-#                         break
-#                     elif obstacle[0].isOpaque and ang < obstacle[1] and obstacle[0].hypot(cen) < disCheck:
-#                         ang = obstacle[1]
-#                         if ang > obj[1]:
-#                             success = False
-#                             break
-#                         
-#             if success:
-#                 seen += (obstacle[0], )
-#                 
-#         return seen
     
     def onSight(self, target):
         pass

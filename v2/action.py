@@ -10,13 +10,14 @@ class Action():
             raise TypeError('action = {a}    type = {t}'.format(a=action, t=type(action)))
         self._onStart = onStart
         self._onCycle = None
+        self._trigger = None
         self.action = action
         
     def setOnStart(self, onStart):
         self._onStart = onStart
         return self
     def onStart(self, owner):
-        if self._onStart is not None:
+        if self._onStart != None:
             return self._onStart(self, owner)
     
     def __call__(self, onStart):
@@ -26,10 +27,19 @@ class Action():
         self._onCycle = onCycle
         return self
     def onCycle(self, owner):
-        if self._onCycle is not None:
+        if self._onCycle != None:
             return self._onCycle(self, owner)
         else:
             owner.action = -1
+            
+    def setTrigger(self, trigger):
+        self._trigger = trigger
+        return self
+    def trigger(self, owner):
+        if self._trigger != None:
+            return self._trigger(self, owner)
+        else:
+            return False
 
 @Action('slash')
 def slash(self, owner):

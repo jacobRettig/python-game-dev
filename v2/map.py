@@ -40,9 +40,10 @@ class Map(Square):
                 self.solidTiles.add(tile)
             if tile.isOpaque:
                 self.opaqueTiles.add(tile)
-        self.solidTiles = frozenset(self.solidTiles)
-        self.opaqueTiles = frozenset(self.opaqueTiles)
         self.completeSet = frozenset(self.data.values())
+        self.solidTiles = frozenset(self.solidTiles)
+        self.openTiles = tuple(self.completeSet - self.solidTiles)
+        self.opaqueTiles = frozenset(self.opaqueTiles)
         
     def __len__(self):
         return (self.side / self.world.SIZE, self.side / self.world.SIZE)

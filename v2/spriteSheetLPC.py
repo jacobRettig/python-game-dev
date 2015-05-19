@@ -37,54 +37,166 @@ class SpriteSheetMaster():
                 self.paths.append(k)
             return self.images[k]
         raise AttributeError
+
+    
                 
 class LPC():
     TAG = {
-        'gender':frozenset(('male', 'female')),
-        'body':frozenset(('light', 'dark', 'dark2', 'darkelf', 'darkelf2', 'tanned', 'tanned2', 'skeleton')),
-        'eyes':frozenset(('blue', 'brown', 'gray', 'green', 'orange', 'purple', 'red', 'yellow', 'none')),
-        'nose':frozenset(('big', 'button', 'straight', 'none')),
-        'ears':frozenset(('big', 'elven', 'none')),
-        'hair color':frozenset(('black', 'blonde', 'blonde2', 'blue', 'blue2', 'brunette', 'brunette2', 'dark-blonde', 'gold',
-            'gray', 'gray2', 'light-blonde', 'light-blonde2', 'pink', 'pink2', 'purple', 'raven', 'raven2', 'redhead',
-            'redhead2', 'ruby-red', 'white-blonde', 'white-blonde2', 'white-cyan', 'white')),
-        'hair':frozenset(('none', 'bangs', 'bangslong', 'bangslong2', 'bangsshort', 'bedhead', 'bunches', 'jewfro', 'long',
-            'long', 'longhawk', 'longknot', 'loose', 'messy1', 'messy2', 'mohawk', 'page', 'page2', 'parted', 'pixie',
-            'plain', 'poneytail', 'poneytail2', 'princess', 'shorthawk', 'shortknot', 'shoulderl', 'shoulderr', 'swoop',
-            'unkempt', 'xlong', 'xlongknot')),
-        'beard':frozenset(('none', 'bigstache', 'fiveoclock', 'frenchstache', 'mustache')),
-        'shirt':frozenset(('none', 'brown', 'maroon', 'teal', 'white')),
-        'pants':frozenset(('none', 'magenta', 'red', 'teal', 'white', 'skirt')),
-        'shoes':frozenset(('none', 'black', 'brown', 'maroon')),
-        'left hand':frozenset(('none', 'arrow', 'arrow_skeleton')),
-        'right hand':frozenset(('none', 'bow', 'bow_skeleton', 'greatbow', 'recurvebow'))
+        'gender':{
+                  'DEFAULT':'male',
+                  'male':{}, 
+                  'female':{}
+                  },
+        'body':{
+                'DEFAULT':'light',
+                'light':{}, 
+                'dark':{}, 
+                'dark2':{}, 
+                'darkelf':{}, 
+                'darkelf2':{}, 
+                'tanned':{}, 
+                'tanned2':{}, 
+                'skeleton':{
+                            'gender':{
+                                      'include':set(('male',))
+                                      },
+                            'eyes':{
+                                    'include':set(('none',))
+                                    },
+                            'nose':{
+                                    'include':set(('none',))
+                                    },
+                            'ears':{
+                                    'include':set(('none',))
+                                    },
+                            'hair':{
+                                    'include':set(('none',))
+                                    },
+                            'beard':{
+                                    'include':set(('none',))
+                                    }
+                            }
+                },
+        'eyes':{
+                'DEFAULT':'blue',
+                'blue':{}, 
+                'brown':{}, 
+                'gray':{}, 
+                'green':{}, 
+                'orange':{}, 
+                'purple':{}, 
+                'red':{}, 
+                'yellow':{}, 
+                'none':{}
+                },
+        'nose':{
+                'DEFAULT':'big',
+                'big':{}, 
+                'button':{}, 
+                'straight':{}, 
+                'none':{}
+                },
+        'ears':{
+                'DEFAULT':'big',
+                'big':{}, 
+                'elven':{}, 
+                'none':{}
+                },
+        'hair color':{'DEFAULT':'black', 'black':{}, 'blonde':{}, 'blonde2':{}, 'blue':{}, 'blue2':{}, 'brunette':{}, 'brunette2':{}, 'dark-blonde':{}, 'gold':{},
+            'gray':{}, 'gray2':{}, 'light-blonde':{}, 'light-blonde2':{}, 'pink':{}, 'pink2':{}, 'purple':{}, 'raven':{}, 'raven2':{}, 'redhead':{},
+            'redhead2':{}, 'ruby-red':{}, 'white-blonde':{}, 'white-blonde2':{}, 'white-cyan':{}, 'white':{}},
+        'hair':{'DEFAULT':'plain', 'none':{}, 'bangs':{}, 'bangslong':{}, 'bangslong2':{}, 'bangsshort':{}, 'bedhead':{}, 'bunches':{}, 'jewfro':{}, 'long':{},
+            'long':{}, 'longhawk':{}, 'longknot':{}, 'loose':{}, 'messy1':{}, 'messy2':{}, 'mohawk':{}, 'page':{}, 'page2':{}, 'parted':{}, 'pixie':{},
+            'plain':{}, 'poneytail':{}, 'poneytail2':{}, 'princess':{}, 'shorthawk':{}, 'shortknot':{}, 'shoulderl':{}, 'shoulderr':{}, 'swoop':{},
+            'unkempt':{}, 'xlong':{}, 'xlongknot':{}},
+        'beard':{'DEFAULT':'none', 'none':{}, 'bigstache':{}, 'fiveoclock':{}, 'frenchstache':{}, 'mustache':{}},
+        'shirt':{'DEFAULT':'brown', 'none':{}, 'brown':{}, 'maroon':{}, 'teal':{}, 'white':{}},
+        'pants':{'DEFAULT':'teal', 'none':{}, 'magenta':{}, 'red':{}, 'teal':{}, 'white':{}, 'skirt':{}},
+        'shoes':{'DEFAULT':'black', 'none':{}, 'black':{}, 'brown':{}, 'maroon':{}},
+        'left hand':{'DEFAULT':'none', 'none':{}, 'arrow':{}, 'arrow_skeleton':{}},
+        'right hand':{'DEFAULT':'none', 'none':{}, 'bow':{}, 'bow_skeleton':{}, 'greatbow':{}, 'recurvebow':{},
+                      'dagger':{
+                                'gender':{
+                                          'include':'male'
+                                          }
+                                },
+                      'spear':{
+                               'gender':{
+                                         'include':'male'
+                                         }
+                               },
+                      'woodwand':{
+                                  'gender':{
+                                            'include':'male'
+                                            }
+                                  }
+                      }
         }
     
-    def __init__(self, **kwargs):
-        self.data, self._image, self.sheets = {'gender':'male', 'body':'light', 'eyes':'blue', 'nose':'big', 'ears':'big',
-                                                         'hair color':'black'}, None, {}
-        for key in kwargs.keys():
+    @staticmethod
+    def fixLpcTag(tag, layer=0):
+        if layer == 2:
+            class includeAll(frozenset):
+                def __init__(self):
+                    pass
+                def __contains__(self, *args, **kwargs):
+                    return True
+            class excludeAll(frozenset):
+                def __init__(self):
+                    pass
+                def __contains__(self, *args, **kwargs):
+                    return False
+            
+            for k in tag:
+                if isinstance(tag[k], dict):
+                    tag[k].setdefault('include', includeAll())
+                    tag[k].setdefault('exclude', excludeAll())
+        else:
+            for k in tag:
+                tag[k] = LPC.fixLpcTag(tag[k], layer + 1)
+        return tag
+#     TAG = fixLpcTag(TAG)
+    
+    def __init__(self, world, **kwargs):
+        self.world = world
+        self.data, self._image = {}, None
+        for key in self.TAG:
+            self.data[key] = self.TAG[key]['DEFAULT']
+            
+        for key in kwargs:
             self[key] = kwargs[key]
     
     def __getitem__(self, k):
-        if k in self.data.keys():
+        if k in self.data:
             return self.data[k]
         else:
-            return 'none'
+            raise IndexError('Nonexistent index : {k}'.format(k=k))
     def __setitem__(self, k, v):
-        if v is None:
-            del(self.data[k])
-        else:
-            if not v in self.TAG[k]:
-                raise IndexError('SpriteSheetLPC assignment error value : {value} is not in key : {key}  available options are {options}'
-                                 .format(value=v, key = k, options=self.TAG[k]))
-            self.data[k] = v
-            
-            if k is 'body' and v is 'skeleton':
-                for itm in ('eyes', 'ears', 'nose'):
-                    self[itm] = 'none'
-                self['gender'] = 'male'
+        if not v in self.TAG[k]:
+            raise IndexError('SpriteSheetLPC assignment error value : {value} is not in key : {key}  available options are {options}'
+                             .format(value=v, key = k, options=self.TAG[k]))
+        
+        self.data[k] = v
+        for includer in self.data:
+            for feature in (dat for dat in self.data if dat != includer and dat in self.TAG[includer][self[includer]]):
+                
+                self.TAG[includer][self[includer]][feature].setdefault('include', [self[feature]])
+                self.TAG[includer][self[includer]][feature].setdefault('exclude', [])
+                
+                if self[feature] not in self.TAG[includer][self[includer]][feature]['include']:
+                    raise LpcTagAssignmentError('tried to assign feature : {k}  value : {v}  but {featureVal} of {feature} not in inclusion for {includer}'
+                                                .format(k=k, v=v, featureVal=self[feature], feature=feature, includer=includer))
+                if self[feature] in self.TAG[includer][self[includer]][feature]['exclude']:
+                    raise LpcTagAssignmentError('tried to assign feature : {k}  value : {v}  but {featureVal} of {feature} is in exclusion for {includer}'
+                                                .format(k=k, v=v, featureVal=self[feature], feature=feature, includer=includer))
+    
         self._image = None
+        
+    def __call__(self):
+        lpc = LPC(self.world)
+        for k in self.data:
+            lpc[k] = self.data[k]
+        return lpc
         
     def __iter__(self):
         return dict(self.data, **{tag:0 for tag in self.TAG.keys() if tag not in self.data})
@@ -112,9 +224,9 @@ class LPC():
     
     def getSheet(self, idn, tag):
         path = self.getSheetPath(idn, tag)
-        if not (path in self.sheets):
-            self.sheets[path] = ImageLPC(path + '.png')
-        return self.sheets[path]
+        if not (path in self.world.loadedSheets):
+            self.world.loadedSheets[path] = ImageLPC(path + '.png')
+        return self.world.loadedSheets[path]
     
     def getSheetPath(self, idn, tag):
         TAG = LPC.TAG
@@ -158,7 +270,10 @@ class LPC():
         elif idn == 'shoes':
             path += 'feet/shoes/' + gender + "/" + self['shoes'] + '_shoes_' + gender
         elif idn in ('left hand', 'right hand'):
-            path += 'weapons/' + idn + '/either/' + self[idn]
+            if idn == 'right hand' and self['right hand'] in ('dagger', 'spear', 'woodwand'):
+                path += 'weapons/right hand/male/' + self['right hand'] + "_male" 
+            else:
+                path += 'weapons/' + idn + '/either/' + self[idn]
                 
         return path
 
@@ -168,7 +283,7 @@ class AnimationLPC():
     def __init__(self, owner, spriteSheet=None, **kwargs):
         self.owner, self.spriteSheet = owner, spriteSheet
         if self.spriteSheet is None:
-            self.spriteSheet = LPC()
+            self.spriteSheet = LPC(self.owner.world)
         
         self.action = 'none'
         self.speed = 8
@@ -231,3 +346,6 @@ class AnimationLPC():
             return 6
         else:
             raise AttributeError('action not found action: {}'.format(self.action))
+
+class LpcTagAssignmentError(Exception):
+    pass

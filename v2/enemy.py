@@ -22,14 +22,7 @@ class Enemy(Mob):
 #         self.acts[1] = action.stab
         
     def AITurn(self):
-        ang = self.dir.angleSub(self.target - self.cen)
-        if ang.y < 0:
-            if ang.sinAdd(self.turnRate) <= 0:
-                return 1
-        else:
-            if ang.sinSub(self.turnRate) >= 0:
-                return -1
-        return 0
+        return max(min((self.target - self.cen).angle, -self.turnRate), self.turnRate) 
     
     def AIMove(self):
         cen = self.cen()
@@ -40,25 +33,18 @@ class Enemy(Mob):
             return False
     
     def onSight(self, target):
-        if isinstance(target, Player):
-            self.target = target.cen
+        if target == self.world.player:
+            self.target = target.cen()
             
-#             if self.act is -1:
-#                 hypot = self.hypot(target)
-#                 if hypot <= 10:
-#                     self.action = 1
-#                 elif hypot <= 15:
-#                     self.action = 0
-                    
     
     def update(self):
         self.doActionTrigger()
-        
-        if self.act == -1:
+        self.doSight()
+        if self.act == -1 and self.lastTime != self.world.time:
             self.turn(self.AITurn())
-            self.doSight()
             self.isMoving = self.AIMove()
             self.doCollisions()
+        self.updateWrapUp()
         return not self.isAlive
         
     

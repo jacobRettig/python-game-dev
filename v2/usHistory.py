@@ -44,28 +44,28 @@ def attackPlayer(self, owner):
     owner.animation.speed = 8
     self.counter += 1
     for entity in world.entityList:
-        if owner != entity and owner.cen.gethypot(entity.cen) <= 500:
-            print(self.counter, entity.hp)
+        if owner != entity and owner.cen.gethypot(entity.cen) <= owner.visDistance:
             entity.hp -= 5
 attackPlayer.counter = 0
 @attackPlayer.setTrigger
 def attackPlayer(self, owner):
     return pygame.key.get_pressed()[pygame.K_SPACE]
     for entity in world.entityList:
-        if owner != entity and owner.cen.gethypot(entity.cen) <= 500:
+        if owner != entity and owner.cen.gethypot(entity.cen) <= owner.visDistance:
             return True
         
 @Action('slash')
 def attackEnemy(self, owner):
     owner.isMoving = False
-    if owner.world.player.cen.gethypot(owner.cen) <= 500:
+    if owner.world.player in owner.seen and owner.world.player.cen.gethypot(owner.cen) <= owner.hearDistance:
         owner.world.player.hp -= 2
 @attackEnemy.setTrigger
 def attackEnemy(self, owner):
-    return owner.world.player.cen.gethypot(owner.cen) <= 500
+    return owner.world.player in owner.seen and owner.world.player.cen.gethypot(owner.cen) <= owner.hearDistance
     
 @Action('hurt')
 def death(self, owner):
+    print('died')
     owner.animation.speed = 10
     owner.isMoving = False
     owner.hp = 99999
@@ -83,6 +83,7 @@ def death(self, owner):
 def addEnemy():
     from enemy import Enemy
     E = Enemy(world, (0, 0, World.SIZE/2))
+    E.speed = .05
     E['eyes'] = 'none'
     E['ears'] = 'none'
     E['nose'] = 'none'
@@ -91,7 +92,7 @@ def addEnemy():
     E['body'] = 'skeleton'
     E['shirt'] = 'none'
     E['shoes'] = 'none'
-    E['pants'] = 'none'
+    E['pants'] = 'skirt'
     E['right hand'] = 'dagger'
     E.acts = [attackEnemy, death]
     E.speed = 1.5
@@ -128,7 +129,7 @@ world.player['beard'] = 'mustache'
 world.player['right hand'] = 'spear'
 world.player['left hand'] = 'arrow'
 
-for i in range(5):
+for i in range(12):
     addEnemy()
     
     

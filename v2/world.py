@@ -33,7 +33,7 @@ class World():
             entity.update()
             if not entity.isAlive:
                 removalSet.add(entity)
-        self.entityList.difference_update(removalSet)
+        entityList = self.entityList.difference_update(removalSet)
         
     
         

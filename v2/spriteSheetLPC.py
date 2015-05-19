@@ -289,7 +289,7 @@ class AnimationLPC():
         self.speed = 8
         self.dirx, self.diry = 1, 0
         self.cycles = 0
-        self.time = self.owner.time
+        self.time = self.owner.lastTime
         
         for key in kwargs.keys():
             setattr(self, key, kwargs[key])
@@ -304,8 +304,8 @@ class AnimationLPC():
         self.dirx, self.diry = self.owner.dir.x, self.owner.dir.y
         if self.owner.action != self.action:
             self.action = self.owner.action
-            self.time, self.cycles = self.owner.time, 0
-        time = self.owner.time - self.time
+            self.time, self.cycles = self.owner.lastTime, 0
+        time = self.owner.lastTime - self.time
         
         self.cycles = int(time // self.speed)
         index = int((time % self.speed) * self.frames // self.speed)

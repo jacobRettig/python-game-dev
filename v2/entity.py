@@ -21,28 +21,20 @@ from vector2d import Vector2D
 
 
 class Entity(GameObject):
-    def __init__(self, world, dim, direction=(1,0), speed=.2, turnRate=math.pi/16, hp=20):
+    def __init__(self, world, dim, direction=0, speed=.2, turnRate=math.pi/16, hp=20):
         GameObject.__init__(self, world, dim)
-        self.dir = direction
+        self._dir = direction
         self.turnRate = turnRate
         self.speed = speed
         
         self.hp = hp
         self.lastTime = self.world.time
                 
-    @util.InstanceGuard('_turnRate', 'set')
-    def turnRate(self, val):
-        self._turnRate = Entity.normVector(val)
-    @util.InstanceGuard('_dir', 'set')
-    def dir(self, val):
-        self._dir = Entity.normVector(val)
-    
 
     def doActionTrigger(self):
         if self.act == -1:
             for i in range(len(self.acts)):
                 if self.acts[i].trigger(self):
-                    print('setting action : {}'.format(i))
                     self.action = i
                     break
 
@@ -50,12 +42,11 @@ class Entity(GameObject):
 
     def turn(self, amount=0):
         if self.lastTime != self.world.time:
-            if amount > 0:
-                for i in range(amount):
-                    self.dir = self.dir.angleAdd(self.turnRate)
-            else:
-                for i in range(abs(amount)):
-                    self.dir = self.dir.angleSub(self.turnRate)
+            self._dir += amount * self.turnRate
+    
+    @property
+    def dir(self):
+        return Vector2D(math.cos(self._dir), math.sin(self._dir))
     
     def move(self, isForward=True):
         if isForward:
@@ -64,7 +55,7 @@ class Entity(GameObject):
             self._tl -= self.getMovement()
         
     def getMovement(self):
-        return self._dir * self.speed * (self.world.time - self.lastTime)
+        return self.dir * self.speed * (self.world.time - self.lastTime)
     def doCollisions(self):
         self.keepInside(self.world.map)
         for tile in self.world.map.solidTiles:
@@ -83,66 +74,14 @@ class Entity(GameObject):
     def updateWrapUp(self):
         self.lastTime = self.world.time
         
-        return self.hp < 0
-    
-    
-    @staticmethod
-    def normVector(val):
-        try:
-            if len(val) != 2:
-                raise TypeError
-            else:
-                val = util.Vector2DReadOnly(*val)
-                if abs(val.hypot - 1) > 0.00001:
-                    val = math.atan2(val[1], val[0])
-                    raise TypeError
-        except TypeError:
-            if isinstance(val, Number):
-                val = util.Vector2DReadOnly(math.cos(val), math.sin(val))
-            else:
-                raise TypeError("val : {} type : {}".format(val, type(val)))
-        except:
-            raise Exception("Uknown Exception val : {} type : {}".format(val, type(val)))
-        finally:
-            return val
-    
-    
-    
     
     
 
     
-    
-    
-    
-def visLInstance(owner):
-    @util.Vector2DCustom
-    def visL(self, k):
-        if k == 0 or k == 'x':
-            return owner.dir.angleAdd(owner.visVec).x * owner.visDis
-        elif k == 1 or k == 'y':
-            return owner.dir.angleAdd(owner.visVec).y * owner.visDis
-        else:
-            raise IndexError
-    return visL
-
-def visRInstance(owner):
-    @util.Vector2DCustom
-    def visR(self, k):
-        if k == 0 or k == 'x':
-            return owner.dir.angleSub(owner.visVec).x * owner.visDis
-        elif k == 1 or k == 'y':
-            return owner.dir.angleSub(owner.visVec).y * owner.visDis
-        else:
-            raise IndexError
-    return visR
-
-
-
     
     
 class Mob(Entity):
-    def __init__(self, world, dim, direction=(1,0), speed=.6, turnRate=math.pi/20, visDis=6, visVec=(math.sqrt(2),)*2,
+    def __init__(self, world, dim, direction=0, speed=.6, turnRate=math.pi/10, visDistance=50, visAng=math.pi/2, hearDistance=30,
          hp=20):
         Entity.__init__(self, world, dim, direction, speed, turnRate, hp)
         self.isAlive = True
@@ -159,10 +98,10 @@ class Mob(Entity):
         
         self.animation = AnimationLPC(self)
         
-        self.visDis = visDis
-        self.visVec = visVec
-        self._visL = visLInstance(self)
-        self._visR = visRInstance(self)
+        self.visAng = visAng
+        self.visDistance = (visDistance + self.side) ** 2
+        self.hearDistance = (hearDistance + self.side) ** 2
+        self.seen = set()
     
     @property
     def blurb(self):
@@ -199,7 +138,7 @@ class Mob(Entity):
     @action.setter
     def action(self, value):
         self.cycles = 0
-        self.animation.time = self.time
+        self.animation.time = self.lastTime
         self.animation.cycles = 0
         self.act = value
         if self.act is not -1:
@@ -212,8 +151,9 @@ class Mob(Entity):
     
     def doSight(self):
         self.seen = self.sight()
-        for seen in self.seen:
-            self.onSight(seen)
+        for seen in self.world.entityList:
+            if seen in self.seen or seen.cen.gethypot(self.cen) <= self.hearDistance:
+                self.onSight(seen)
             
     def __getitme__(self, k):
         return self.animation[k]
@@ -222,10 +162,6 @@ class Mob(Entity):
         self.animation[k] = v
         
     
-    @property
-    def time(self):
-        return self.world.time
-        
     @util.InstanceGuard('_visVec', 'set')
     def visVec(self, val):
         self._visVec = Entity.normVector(val)
@@ -240,8 +176,11 @@ class Mob(Entity):
         seen = set()
         cen = self.cen()
         for E in self.world.entityList:
-            if self is not E and (cen - E.cen).hypot <= self.sightDistance:
-                seen.add(E)
+            if self != E:
+                ang = abs(((cen - E.cen).angle + math.pi) % (2 * math.pi))
+                if ang <= self.visAng or ang >= 2 * math.pi - self.visAng:
+                    if (cen - E.cen).hypot <= self.sightDistance:
+                        seen.add(E)
         return seen
     
     def onSight(self, target):

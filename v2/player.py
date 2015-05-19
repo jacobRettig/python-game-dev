@@ -62,6 +62,7 @@ class Player(Mob):
         
         self.doActionTrigger()
         
+        self._timeRate = 0
         if self.act != -1:
             self._timeRate = 0
         else:
@@ -70,11 +71,8 @@ class Player(Mob):
             else:
                 self._timeRate = 0
         
-            if pressed[pygame.K_UP] is 1:
-                self.isMoving = True
-            elif self._timeRate is 0:
-                self.isMoving = False
-                
+            self.isMoving = pressed[pygame.K_UP] == 1
+            
             left = pressed[pygame.K_LEFT] == 1
             right = pressed[pygame.K_RIGHT] == 1  
             if (left or right) and not (left and right):

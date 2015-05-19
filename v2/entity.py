@@ -51,12 +51,12 @@ class Entity(GameObject):
     
     def move(self, isForward=True):
         if isForward:
-            self._tl[0] += self._dir.x * self.speed * (self.world.time - self.lastTime)
-            self._tl[1] += self._dir.y * self.speed * (self.world.time - self.lastTime)
+            self._tl += self.getMovement()
         else:
-            self._tl[0] -= self._dir.x * self.speed * (self.world.time - self.lastTime)
-            self._tl[1] -= self._dir.y * self.speed * (self.world.time - self.lastTime)    
-    
+            self._tl -= self.getMovement()
+        
+    def getMovement(self):
+        return self._dir * self.speed * (self.world.time - self.lastTime)
     def doCollisions(self):
         self.keepInside(self.world.map)
         for tile in self.world.map.solidTiles:
@@ -207,6 +207,12 @@ class Mob(Entity):
         self.seen = self.sight()
         for seen in self.seen:
             self.onSight(seen)
+            
+    def __getitme__(self, k):
+        return self.animation[k]
+    
+    def __setitem__(self, k, v):
+        self.animation[k] = v
         
     
     @property

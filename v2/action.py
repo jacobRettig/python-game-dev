@@ -39,8 +39,9 @@ def slash(self, owner):
         if isinstance(seen, Mob) and seen.hypot(owner.cen) <= 15:
             seen.hp -= 2
             
-@Action('cast')
+@Action('shoot')
 def shove(self, owner):
+    owner.animation.speed = 20
     owner.isMoving = False
     from entity import Mob
     for seen in owner.seen:
@@ -49,13 +50,12 @@ def shove(self, owner):
 
 @Action('hurt')
 def death(self, owner):
-    print('death')
+    owner.animation.speed = 15
     owner.isMoving = False
     owner.hp = 99999
 @death.setOnCycle
 def death(self, owner):
     owner.isAlive = False
-    
     
     
     

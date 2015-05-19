@@ -13,7 +13,10 @@ class ImageLPC(pygame.Surface):
         self.blit(img, (0, 0))
         self.set_colorkey(self.get_at((0, 0)))
     def __getitem__(self, k):
-        return self.subsurface((k[1] * self.get_width() / 13, k[0] * self.get_height() / 21, self.get_width() / 13, self.get_height() / 21))
+        return self.subsurface((k[1] * self.get_width() / 13,
+                                k[0] * self.get_height() / 21, 
+                                self.get_width() / 13, 
+                                self.get_height() / 21))
     
 
 class SpriteSheetMaster():

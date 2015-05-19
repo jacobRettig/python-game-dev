@@ -33,12 +33,11 @@ class Enemy(Mob):
     
     def AIMove(self):
         cen = self.cen()
-        self.move(True)
-        if self._cen.gethypot(self.target) > cen.gethypot(self.target):
-            self.move(False)
-            return False
-        else:
+        if (cen + self.getMovement()).gethypot(self.target) < cen.gethypot(self.target):
+            self.move(True)
             return True
+        else:
+            return False
     
     def onSight(self, target):
         if isinstance(target, Player):

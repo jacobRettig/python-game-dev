@@ -6,9 +6,10 @@ Created on May 9, 2015
 
 from collections import Iterable
 from functools import reduce
-import random
-from vector2d import Vector2D
 import pdb
+import random
+
+from engine.vector2d import Vector2D
 
 
 def binaryInsertionSort(compareFunction, sortList, *items):

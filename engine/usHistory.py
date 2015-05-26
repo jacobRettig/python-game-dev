@@ -13,6 +13,7 @@ import cProfile
 
 import pygame
 
+from action import Action
 from camera import Camera
 from world import World
 
@@ -33,8 +34,6 @@ background.fill(BACKGROUND_COLOR)
 del WIDTH
 del HEIGHT
 
-from action import Action
-import pygame
 
 
 
@@ -71,11 +70,12 @@ def death(self, owner):
     owner.hp = 99999
 @death.setOnCycle
 def death(self, owner):
-    owner.hp = 20
-    import random
-    owner.cen = world.map.openTiles[random.randint(0, len(world.map.openTiles) - 1)].cen()
-    owner.target = owner.cen()
-    owner.action = -1
+    owner.isAlive = False
+#     owner.hp = 20
+#     import random
+#     owner.cen = world.map.openTiles[random.randint(0, len(world.map.openTiles) - 1)].cen()
+#     owner.target = owner.cen()
+#     owner.action = -1
 @death.setTrigger
 def death(self, owner):
     return owner.hp <= 0
@@ -97,17 +97,6 @@ def addEnemy():
     E.acts = [attackEnemy, death]
     E.speed = 1.5
     
-    blurbs = (
-            'Hitler\'s been elected Chancellor! WWII D:', 
-            'I\'m sooo hungry and unemployed!',
-            'My crops are gone!',
-            'It\'s hard to get foreign goods now!',
-            'My money is gone from the bank! ', 
-            'I want out of Hooverville!',
-            'The U.S. ' 
-              )
-    import random
-    E.blurbs['text'].append(blurbs[random.randint(0, len(blurbs) - 1)])
     
     import random
     

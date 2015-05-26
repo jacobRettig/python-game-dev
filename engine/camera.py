@@ -1,8 +1,8 @@
 import pygame
 
-import entity
-from square import Square
-import tile
+import engine.entity
+from engine.square import Square
+import engine.tile
 
 
 class Camera:

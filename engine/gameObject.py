@@ -4,7 +4,7 @@ Created on May 9, 2015
 @author: lisarettig
 '''
 
-from square import Square
+from engine.square import Square
 
 class GameObject(Square):
     def __init__(self, world, sq, isOpaque=False, isSolid=False):

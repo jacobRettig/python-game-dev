@@ -4,13 +4,13 @@ Created on May 9, 2015
 @author: lisarettig
 '''
 
-from vector2d import Vector2D
 from collections import Iterable
-import math, util
+import math, engine.util
 import sys
 
-    
-    
+from engine.vector2d import Vector2D
+
+
 # Will have a point relative to the owner's coords with a vertical and horizontal dilation multiplied by var 'side'
 # owner = the instance calling method which holds referenced coords
 # h = horizontal dilation factor
@@ -104,23 +104,23 @@ class Square(Iterable):
         
         
 #     this prevents overwriting instance variables
-    @util.InstanceGuard('_tl', 'set')
+    @engine.util.InstanceGuard('_tl', 'set')
     def tl(self, value):
         self.tl[0] = value[0]
         self.tl[1] = value[1]
-    @util.InstanceGuard('_tr', 'set')
+    @engine.util.InstanceGuard('_tr', 'set')
     def tr(self, value): 
         self.tr.x = value[0]
         self.tr.y = value[1]
-    @util.InstanceGuard('_bl', 'set')
+    @engine.util.InstanceGuard('_bl', 'set')
     def bl(self, value): 
         self.bl.x = value[0]
         self.bl.y = value[1]
-    @util.InstanceGuard('_br', 'set')
+    @engine.util.InstanceGuard('_br', 'set')
     def br(self, value): 
         self.br.x = value[0]
         self.br.y = value[1]
-    @util.InstanceGuard('_cen', 'set')
+    @engine.util.InstanceGuard('_cen', 'set')
     def cen(self, value): 
         self.cen.x = value[0]
         self.cen.y = value[1]

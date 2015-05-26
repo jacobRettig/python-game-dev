@@ -8,7 +8,7 @@ import pygame
 
 class ImageLPC(pygame.Surface):
     def __init__(self, path):
-        img = pygame.image.load(path)
+        img = pygame.image.load('engine/' + path)
         pygame.Surface.__init__(self, (img.get_width(), img.get_height()))
         self.blit(img, (0, 0))
         self.set_colorkey(self.get_at((0, 0)))
@@ -55,7 +55,8 @@ class LPC():
                 'darkelf':{}, 
                 'darkelf2':{}, 
                 'tanned':{}, 
-                'tanned2':{}, 
+                'tanned2':{},
+                'orc':{},
                 'skeleton':{
                             'gender':{
                                       'include':set(('male',))
@@ -75,7 +76,12 @@ class LPC():
                             'beard':{
                                     'include':set(('none',))
                                     }
-                            }
+                            },
+                'red_orc':{
+                    'gender':{
+                        'include':set(('male',))
+                        }
+                    }
                 },
         'eyes':{
                 'DEFAULT':'blue',
@@ -132,6 +138,7 @@ class LPC():
                                   }
                       }
         }
+    TAG_CATEGORIES = frozenset(TAG.keys())
     
     @staticmethod
     def fixLpcTag(tag, layer=0):

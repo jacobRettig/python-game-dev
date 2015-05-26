@@ -4,10 +4,11 @@ Created on Apr 20, 2015
 @author: jacobrettig
 '''
 
+from collections import Iterable
 import math
 
-from vector import Vector
-from collections import Iterable
+from engine.vector import Vector
+
 
 class Vector2D(Vector, Iterable):
     def __init__(self, x=0, y=0):
